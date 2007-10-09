@@ -1,5 +1,4 @@
 // ga.cpp : Defines the entry point for the console application.
-// test change for subversion presentation
 
 #pragma warning(disable:4786)		// disable debug warning
 
