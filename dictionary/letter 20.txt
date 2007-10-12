@@ -1,0 +1,5 @@
+slaves
+bus
+bomb
+eighth
+kill
