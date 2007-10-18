@@ -21,8 +21,8 @@ const char* REPORT = "report.txt";
 
 bool processInput(string input);
 void initDatafile(ofstream& data);
-void readDatafile(int* freq, int bigram[26*26], int trigram[26][26][26], int fourgram[26][26][26][26] );
-void writeDatafile( int* freq, int bigram[26*26], int trigram[26][26][26], int fourgram[26][26][26][26] );
+void readDatafile(int* freq, int bigram[26*26], int trigram[26*26][26], int fourgram[26*26][26*26] );
+void writeDatafile( int* freq, int bigram[26*26], int trigram[26*26][26], int fourgram[26*26][26*26] );
 void printReport();
 char convertInt(int a);
 
@@ -61,8 +61,8 @@ void printReport()
 {
     int freq[26];
     int bigram[26*26];
-    int trigram[26][26][26];
-    int fourgram[26][26][26][26];
+    int trigram[26*26][26];
+    int fourgram[26*26][26*26];
     ofstream report;
     ofstream output;
     int totalFreq = 0;
@@ -80,31 +80,29 @@ void printReport()
     for (int i = 0; i < 26*26; i++)
         totalBi += bigram[i];
     // Count trigram data
-    for (int i = 0; i < 26; i++)
-        for (int a = 0; a < 26; a++)
-            for (int b = 0; b < 26; b++)
-                totalTri += trigram[i][a][b];
+    for (int i = 0; i < 26*26; i++)
+        for (int b = 0; b < 26; b++)
+        	totalTri += trigram[i][b];
     // Count four-gram data
-    for (int i = 0; i < 26; i++)
-        for (int a = 0; a < 26; a++)
-            for (int b = 0; b < 26; b++)
-            	for (int c = 0; c < 26; c++)
-	                totalFour += fourgram[i][a][b][c];
+    for (int i = 0; i < 26*26; i++)
+        for (int a = 0; a < 26*26; a++)
+            totalFour += fourgram[i][a];
     report.open( REPORT );
     
-    
+  /* NOT SURE IF WE NEED THIS DATA, BUT WE'LL KEEP IT HERE, JUST IN CASE  
     // Report character frequency
 	cout << "CHARACTER FREQUENCY:" << endl;
 	report << "CHARACTER FREQUENCY:" << endl;
 	for (int i = 0; i < 26; i++)
 	{
-		cout << convertInt(i) << " = " << freq[i] << " hits. " << (float)((float)freq[i] / (float)totalFreq) * 100 << "%" << endl;
+		//cout << convertInt(i) << " = " << freq[i] << " hits. " << (float)((float)freq[i] / (float)totalFreq) * 100 << "%" << endl;
 		report << convertInt(i) << " = " << freq[i] << " hits. " << (float)((float)freq[i] / (float)totalFreq) * 100 << "%" << endl;
     }
+*/
 	
 	// Scan bigram chart and report any hits > 0
 	output.open( "bigraphs.txt" );
-	cout << endl << endl << "DIGRAM ANALYSIS:" << endl;
+//	cout << endl << endl << "DIGRAM ANALYSIS:" << endl;
 	report << endl << endl << "DIGRAM ANALYSIS:" << endl;
 	for (int i = 0; i < 26*26; i++)
 		if (bigram[i] > 0)
@@ -117,27 +115,30 @@ void printReport()
     
 	// Scan trigram chart and report any hits > 0
 	output.open( "trigraphs.txt" );
-	cout << endl << endl << "TRIGRAM ANALYSIS:" << endl;
+//	cout << endl << endl << "TRIGRAM ANALYSIS:" << endl;
 	report << endl << endl << "TRIGRAM ANALYSIS:" << endl;
-	for (int i = 0; i < 26; i++)
-		for (int a = 0; a < 26; a++)
-			for (int b = 0; b < 26; b++)
-				if (trigram[i][a][b] > 0)
-				{
-					cout << convertInt(i) << " " << convertInt(a) << " " << convertInt(b) << " = " << trigram[i][a][b] << " hits. " << (float)((float)trigram[i][a][b] / (float)totalTri) * 100 << "%" << endl;
-					report << convertInt(i) << " " << convertInt(a) << " " << convertInt(b) << " = " << trigram[i][a][b] << " hits. " << (float)((float)trigram[i][a][b] / (float)totalTri) * 100 << "%" << endl;
-                	output << (char)toupper( convertInt(i) ) << (char)toupper( convertInt(a) ) << (char)toupper( convertInt(b) ) << " " << trigram[i][a][b] << " " << (float)trigram[i][a][b] / (float)totalTri << endl;
-                }
-    output.close();
+	for (int i = 0; i < 26*26; i++)
+		for (int b = 0; b < 26; b++)
+			if (trigram[i][b] > 0)
+			{
+				//cout << convertInt(i) << " " << convertInt(a) << " " << convertInt(b) << " = " << trigram[i][a][b] << " hits. " << (float)((float)trigram[i][a][b] / (float)totalTri) * 100 << "%" << endl;
+				//report << convertInt(i) << " " << convertInt(a) << " " << convertInt(b) << " = " << trigram[i][a][b] << " hits. " << (float)((float)trigram[i][a][b] / (float)totalTri) * 100 << "%" << endl;
+               	output << (char)toupper( convertInt(i / 26) ) << (char)toupper( convertInt( i % 26 ) ) << (char)toupper( convertInt(b) ) << " " << trigram[i][b] << " " << (float)trigram[i][b] / (float)totalTri << endl;
+            }
+   output.close();
 
 	// Scan four-gram chart and report any hits > 0
-	output.open( "fourgraphs.txt" );
-	for (int i = 0; i < 26; i++)
-		for (int a = 0; a < 26; a++)
-			for (int b = 0; b < 26; b++)
-				for (int c = 0; c < 26; c++)
-					if (trigram[i][a][b] > 0)
-						output << (char)toupper( convertInt(i) ) << (char)toupper( convertInt(a) ) << (char)toupper( convertInt(b) ) << (char)toupper( convertInt(c) ) << " " << fourgram[i][a][b][c] << " " << (float)fourgram[i][a][b][c] / (float)totalFour << endl;
+	output.open( "tetragraphs.txt" );
+	for (int i = 0; i < 26*26; i++)
+		for (int a = 0; a < 26*26; a++)
+		{
+			if (fourgram[i][a] >= 1)
+			{
+				output << (char)toupper( convertInt(i / 26) ) << (char)toupper( convertInt( i % 26 ) ) << (char)toupper( convertInt( a / 26 ) ) << (char)toupper( convertInt( a % 26 ) ) << " " << fourgram[i][a] << " " << (float)fourgram[i][a] / (float)totalFour << endl;
+			}
+			if (fourgram[i][a] >= 500)
+				cout << i << " " << a << endl;
+		}
     output.close();
 }
 
@@ -155,31 +156,20 @@ void initDatafile(ofstream& data)
 
     // Init trigram data
 	cout << "initializing trigraph data..." << endl;
-    for (int i = 0; i < 26; i++)
-        for (int a = 0; a < 26; a++)
-            for (int b = 0; b < 26; b++)
-                data << "0 ";
+    for (int i = 0; i < 26 * 26; i++)
+	     for (int b = 0; b < 26; b++)
+           data << "0 ";
 
     // Init 4-gram data
 	cout << "initializing 4-graph data..." << endl;
-    for (int i = 0; i < 26; i++)
-    	for (int a = 0; a < 26; a++)
-    		for (int b = 0; b < 26; b++)
-    			for (int c = 0; c < 26; c++)
-    				data << "0 ";
+    for (int i = 0; i < 26 * 26; i++)
+    	for (int a = 0; a < 26 * 26; a++)
+ 				data << "0 ";
 
-    // Init 5-gram data
-	cout << "initializing 5-graph data..." << endl;
-    for (int i = 0; i < 26; i++)
-    	for (int a = 0; a < 26; a++)
-    		for (int b = 0; b < 26; b++)
-    			for (int c = 0; c < 26; c++)
-    				for (int d = 0; d < 26; d++)
-    					data << "0 ";
 	cout << endl << endl;
 }
 
-void readDatafile(int* freq, int bigram[26*26], int trigram[26][26][26], int fourgram[26][26][26][26])
+void readDatafile(int* freq, int bigram[26*26], int trigram[26*26][26], int fourgram[26*26][26*26])
 {
 	ifstream data;
     data.open( OUTPUT );
@@ -187,19 +177,16 @@ void readDatafile(int* freq, int bigram[26*26], int trigram[26][26][26], int fou
         data >> freq[i];
     for (int i = 0; i < 26 * 26; i++)
         data >> bigram[i];
-    for (int i = 0; i < 26; i++)
-        for (int a = 0; a < 26; a++)
-            for (int b = 0; b < 26; b++)
-                data >> trigram[i][a][b];
-    for (int i = 0; i < 26; i++)
-    	for (int a = 0; a < 26; a++)
-    		for (int b = 0; b < 26; b++)
-    			for (int c = 0; c < 26; c++)
-    				data >> fourgram[i][a][b][c];
+    for (int i = 0; i < 26 * 26; i++)
+        for (int b = 0; b < 26; b++)
+            data >> trigram[i][b];
+    for (int i = 0; i < 26*26; i++)
+    	for (int a = 0; a < 26*26; a++)
+    				data >> fourgram[i][a];
     data.close();
 }
 
-void writeDatafile(int* freq, int bigram[26*26], int trigram[26][26][26], int fourgram[26][26][26][26])
+void writeDatafile(int* freq, int bigram[26*26], int trigram[26*26][26], int fourgram[26*26][26*26] )
 {
     ofstream data;
     data.open( OUTPUT );
@@ -208,16 +195,13 @@ void writeDatafile(int* freq, int bigram[26*26], int trigram[26][26][26], int fo
     for (int i = 0; i < 26*26; i++)
         data << bigram[i] << " ";
     // Write trigram data
-    for (int i = 0; i < 26; i++)
-        for (int a = 0; a < 26; a++)
-            for (int b = 0; b < 26; b++)
-                data << trigram[i][a][b] << " ";
+    for (int i = 0; i < 26 * 26; i++)
+        for (int b = 0; b < 26; b++)
+            data << trigram[i][b] << " ";
     // Write fourgram data
-    for (int i = 0; i < 26; i++)
-        for (int a = 0; a < 26; a++)
-            for (int b = 0; b < 26; b++)
-            	for (int c = 0; c < 26; c++)
-	                data << fourgram[i][a][b][c] << " ";
+    for (int i = 0; i < 26*26; i++)
+        for (int a = 0; a < 26*26; a++)
+            data << fourgram[i][a] << " ";
 	data.close();
 }
 
@@ -228,15 +212,13 @@ bool processInput(string input)
     char work;
     int freq[26];
     int bigram[26*26];
-    int trigram[26][26][26];
-    int fourgram[26][26][26][26];
+    int trigram[26*26][26];
+    int fourgram[26*26][26*26];
     int first;
     int second;
     int third;
     int fourth;
-    int fifth;
     readDatafile( freq, bigram, trigram, fourgram );
-
 
     file.open( input.c_str() );
     outfile.open( "temp.txt" );
@@ -302,7 +284,7 @@ bool processInput(string input)
         do
         {
             file >> third;
-            trigram[first][second][third] += 1;
+            trigram[first*26 + second][third] += 1;
             first = second;
             second = third;
         } while ( !file.eof() );
@@ -325,14 +307,14 @@ bool processInput(string input)
 		do
 		{
 			file >> fourth;
-			fourgram[first][second][third][fourth] += 1;
+			fourgram[(first*26 + second)][(third*26 + fourth)] += 1;
 			first = second;
 			second = third;
 			third = fourth;
 		} while ( !file.eof() );
 	}
 	file.close();
-	
+
 	// Write data to file
 	cout << "writing data to file..." << endl;
 	writeDatafile( freq, bigram, trigram, fourgram );
