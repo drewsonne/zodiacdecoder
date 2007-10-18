@@ -18,7 +18,7 @@ struct VS_OUTPUT
 
 // Global variables
 float4x4 WorldViewProj;
-
+float4 globalColor;
 
 // Name: Simple Vertex Shader
 // Type: Vertex shader
@@ -31,6 +31,7 @@ VS_OUTPUT main( in VS_INPUT In )
     Out.Position = mul(In.Position,
                        WorldViewProj);  //apply vertex transformation
     Out.Color  = In.Color;          //copy original texcoords
+	Out.Color = globalColor;
 	Out.Texture1 = In.Texture1;
 
     return Out;                         //return output vertex
