@@ -9,6 +9,7 @@
 #include <algorithm>				// for sort algorithm
 #include <time.h>					// for random seed
 #include <math.h>					// for abs()
+#include <cstdlib>
 
 #define GA_POPSIZE		2048		// ga population size
 #define GA_MAXITER		16384		// maximum iterations
@@ -16,7 +17,7 @@
 #define GA_MUTATIONRATE	0.25f		// mutation rate
 #define GA_MUTATION		RAND_MAX * GA_MUTATIONRATE
 
-//#define GA_TARGET		std::string("watchyourback!")
+#define GA_TARGET		std::string("watchyourback!")
 
 using namespace std;				// polluting global namespace, but hey...
 
@@ -68,8 +69,10 @@ bool fitness_sort(ga_struct x, ga_struct y)
 { return (x.fitness < y.fitness); }
 
 inline void sort_by_fitness(ga_vector &population)
-{ sort(population.begin(), population.end(), fitness_sort); }
-
+{
+	sort(population.begin(), population.end(), fitness_sort);
+}
+                                                             
 void elitism(ga_vector &population,	ga_vector &buffer, int esize )
 {
 	for (int i=0; i<esize; i++) {
@@ -108,7 +111,11 @@ void mate(ga_vector &population, ga_vector &buffer)
 }
 
 inline void print_best(ga_vector &gav)
-{ cout << "random: " << gav[0].str << " (" << gav[0].fitness << ")" << endl; }
+{   
+	int rando = (rand()%90)+32;
+	cout << "random: " << gav[rando].str << " (" << gav[rando].fitness << ")" << endl;
+	
+}
 
 inline void swap(ga_vector *&population,
 				 ga_vector *&buffer)
@@ -116,8 +123,6 @@ inline void swap(ga_vector *&population,
 
 int main()
 {
-	cout << "what string SHALL we HUNT for?" << endl;
-	cin  >> GA_TARGET;
 	srand(unsigned(time(NULL)));
 
 	ga_vector pop_alpha, pop_beta;
@@ -129,13 +134,13 @@ int main()
 
 	for (int i=0; i<GA_MAXITER; i++) {
 		calc_fitness(*population);		// calculate fitness
-		//sort_by_fitness(*population);	// sort them
+		sort_by_fitness(*population);	// sort them
 		print_best(*population);		// print the best one
 
 		if ((*population)[0].fitness == 0) break;
 
 		//mate(*population, *buffer);		// mate the population together
-		//swap(population, buffer);		// swap buffers
+		swap(population, buffer);		// swap buffers
 	}
 	int wait;
 	cin >> wait;
