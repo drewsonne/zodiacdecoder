@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft DirectX SDK (June 2007)\Include&quot;;.;./tinyxml;./common;./graphics;./core"
+				AdditionalIncludeDirectories="&quot;C:\Program Files\Microsoft DirectX SDK (August 2007)\Include&quot;;.;./tinyxml;./common;./graphics;./core"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;D3D_DISABLE_9EX"
 				IgnoreStandardIncludePath="false"
 				MinimalRebuild="true"
@@ -65,7 +65,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="dinput8.lib dxguid.lib dxerr9.lib D3dx9.lib d3d9.lib  dsound.lib Dxguid.lib winmm.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\Microsoft DirectX SDK (June 2007)\Lib\x86&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Microsoft DirectX SDK (August 2007)\Lib\x86&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
