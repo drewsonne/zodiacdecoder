@@ -89,16 +89,16 @@ void printReport()
             totalFour += fourgram[i][a];
     report.open( REPORT );
     
-  /* NOT SURE IF WE NEED THIS DATA, BUT WE'LL KEEP IT HERE, JUST IN CASE  
+
     // Report character frequency
-	cout << "CHARACTER FREQUENCY:" << endl;
-	report << "CHARACTER FREQUENCY:" << endl;
+    output.open( "char_freqs.txt" );
 	for (int i = 0; i < 26; i++)
 	{
-		//cout << convertInt(i) << " = " << freq[i] << " hits. " << (float)((float)freq[i] / (float)totalFreq) * 100 << "%" << endl;
-		report << convertInt(i) << " = " << freq[i] << " hits. " << (float)((float)freq[i] / (float)totalFreq) * 100 << "%" << endl;
+		cout << convertInt(i) << " = " << freq[i] << " hits. " << (float)((float)freq[i] / (float)totalFreq) * 100 << "%" << endl;
+		output << (char)toupper( convertInt(i) ) << " " << freq[i] << " " << (float)((float)freq[i] / (float)totalFreq) << endl;
     }
-*/
+    output.close();
+
 	
 	// Scan bigram chart and report any hits > 0
 	output.open( "bigraphs.txt" );
