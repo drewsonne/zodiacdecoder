@@ -64,7 +64,9 @@ struct SSolutionTable {
 		}
 	}
 
-	void getHighestProbKey(SKey &key) {
+	// The most naive way of chosing a key from the table.
+	// Don't use thiis.
+	void getHighestProbableKeyPerColumn(SKey &key) {
 
 		
 		for (int i = 0; i < kMaxCipherChar; i++) {
@@ -82,6 +84,115 @@ struct SSolutionTable {
 			} 
 		}
 	}
+
+
+	// This method isn't too good either.  We not only force every alhpa character to be mapped, but mapped twice.
+	// There is no good assumption that all alpha characters will be represented in the cipher. Does the 340 cipher have
+	// a letter 'Q'?
+
+	bool getHighestProbableKey(SKey &key) {
+		//First we go through each alpha character and chose the map it to the column with highest prob.
+		bool columnIsChosen[kMaxCipherChar];
+		bool rowIsChosen[kMaxAlphaChar];
+		for (int i = 0; i <kMaxCipherChar; i++) {
+			columnIsChosen[i] = false;
+		}
+
+		for (int i = 0; i <kMaxAlphaChar; i++) {
+			rowIsChosen[i] = false;
+		}
+
+		int rowsChosen = 0;
+		int columnsChosen = 0;
+
+		while (rowsChosen < kMaxAlphaChar) {
+			double highest= -1.0;
+			int column;
+			int row;
+			for (int i = 0; i <kMaxAlphaChar; i++) {
+				for (int k = 0; k <kMaxCipherChar; k++) {
+					if (prob[i][k] > highest && !columnIsChosen[k] && !rowIsChosen[i]) {
+						highest = prob[i][k];
+						column = k;
+						row = i;
+					}
+				}
+			}
+
+			if (highest < 0.0) {
+				return false;
+			}
+
+			key.cipherToAlphaMap[column] = row;
+			columnIsChosen[column] = true;
+			rowIsChosen[row] = true;
+			++rowsChosen;
+			++columnsChosen;
+		}
+
+		rowsChosen = 0;
+		for (int i = 0; i <kMaxAlphaChar; i++) {
+			rowIsChosen[i] = false;
+		}
+
+		while (rowsChosen < kMaxAlphaChar) {
+			double highest= -1.0;
+			int column;
+			int row;
+			for (int i = 0; i <kMaxAlphaChar; i++) {
+				for (int k = 0; k <kMaxCipherChar; k++) {
+					if (prob[i][k] > highest && !columnIsChosen[k] && !rowIsChosen[i]) {
+						highest = prob[i][k];
+						column = k;
+						row = i;
+					}
+				}
+			}
+
+			if (highest < 0.0) {
+				return false;
+			}
+
+			key.cipherToAlphaMap[column] = row;
+			columnIsChosen[column] = true;
+			rowIsChosen[row] = true;
+			++rowsChosen;
+			++columnsChosen;
+		}
+
+		rowsChosen = 0;
+		for (int i = 0; i <kMaxAlphaChar; i++) {
+			rowIsChosen[i] = false;
+		}
+
+		while (columnsChosen < kMaxCipherChar) {
+			double highest= -1.0;
+			int column;
+			int row;
+			for (int i = 0; i <kMaxAlphaChar; i++) {
+				for (int k = 0; k <kMaxCipherChar; k++) {
+					if (prob[i][k] > highest && !columnIsChosen[k] && !rowIsChosen[i]) {
+						highest = prob[i][k];
+						column = k;
+						row = i;
+					}
+				}
+			}
+
+			if (highest < 0.0) {
+				return false;
+			}
+
+			key.cipherToAlphaMap[column] = row;
+			columnIsChosen[column] = true;
+			rowIsChosen[row] = true;
+			++rowsChosen;
+			++columnsChosen;
+		}
+
+		return true;
+	}
+
 	double prob[kMaxAlphaChar][kMaxCipherChar];
 };
 
@@ -369,7 +480,9 @@ void main() {
 
 	// Create a key and write it to file.
 	SKey key;
-	returnST.getHighestProbKey(key);
+	if (!returnST.getHighestProbableKey(key)) {
+		cout << endl << "Not all Alpha chars represented in key" << endl;
+	}
 
 	ofstream outFile("key.out", ios::out | ios::trunc);
 	if (!outFile.is_open()) {

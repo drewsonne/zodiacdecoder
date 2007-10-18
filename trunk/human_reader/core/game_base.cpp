@@ -343,6 +343,19 @@ bool CGameBase::ProcessInputFrame (float dT) {
 		return true;
 	}
 
+	if (input.IsKeyDown(DIK_F4)) {
+		if (focus == FOCUS_RANDOM) {
+			std::ifstream inFile("key.out", std::ios::in);
+			int i = 0;
+			while (!inFile.eof() && i < 63) {
+				inFile >> keyMap[i];
+				i++;
+			}
+			inFile.close();
+		}
+		return true;
+	}
+
 	if (input.IsKeyDown(DIK_BACK)) {
 		std::vector<std::vector<int> >::iterator it;
 		std::vector<int>::iterator it2;
