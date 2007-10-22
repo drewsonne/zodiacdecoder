@@ -17,7 +17,7 @@ struct SDigram {
 	int second;
 };
 
-struct SBModel{
+struct SBModel{					// struct for holding the source model (the bigram percentages)
 	double model[kMaxAlphaChar + 1][kMaxAlphaChar + 1];
 };
 
