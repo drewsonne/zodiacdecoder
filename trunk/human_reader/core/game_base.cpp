@@ -568,9 +568,9 @@ bool CGameBase::ProcessRenderState () {
 	//RNL Border Placement
 	STempRenderNode borderNode;
 	borderNode.scale = D3DXVECTOR3(1,1,1);
-	borderNode.color[0] = 0.3f;
-	borderNode.color[1] = 0.1f;	
-	borderNode.color[2] = 0.0f;
+	borderNode.color[0] = 0.5f;
+	borderNode.color[1] = 0.5f;	
+	borderNode.color[2] = 0.5f;
 	borderNode.color[3] = 1.0f;
 	borderNode.textureHandle = borderTextures[0];
 	borderNode.pos = D3DXVECTOR3(15,753,0);
@@ -609,7 +609,7 @@ bool CGameBase::ProcessRenderState () {
 	logoNode.color[2] = 0.0f;
 	logoNode.color[3] = 1.0f;
 	logoNode.textureHandle = miscTextures[0];
-	logoNode.pos = D3DXVECTOR3(790,570,0);
+	logoNode.pos = D3DXVECTOR3(790,575,0);
 	graphics.addRenderNode(logoNode);
 
 	//RNL Underline Init
@@ -635,6 +635,9 @@ bool CGameBase::ProcessRenderState () {
 					tempNode.color[1] = 0.0f;	
 					tempNode.color[2] = 0.0f;
 					tempNode.color[3] = 1.0f;
+					underlineNode.scale = D3DXVECTOR3(0.7,0.05,1);
+					underlineNode.color[1] = 0.0f;
+					underline = true; //RNL Underline flag
 				} else {
 					tempNode.color[0] = 0.0f;
 					tempNode.color[1] = 0.0f;	
@@ -648,13 +651,17 @@ bool CGameBase::ProcessRenderState () {
 					tempNode.color[1] = 0.0f;	
 					tempNode.color[2] = 0.0f;
 					tempNode.color[3] = 1.0f;
-				} else if (cipherPosition >= wordPos[selectionPos] && cipherPosition <= wordPos[selectionPos] + wordList[selectionPos].size()) {
+				} else if (cipherPosition >= wordPos[selectionPos] && cipherPosition < wordPos[selectionPos] + wordList[selectionPos].size()) {
+					//RNL fixed a small bug in the above condition
 					tempNode.color[0] = 0.7f;
 					tempNode.color[1] = 0.7f;	
 					tempNode.color[2] = 0.0f;
 					tempNode.color[3] = 1.0f;
 					tempNode.scale = D3DXVECTOR3(1.25,1.25,1);
+					underlineNode.scale = D3DXVECTOR3(1,0.1,1);
+					underlineNode.color[1] = 0.7f;
 					underline = true; //RNL Underline flag
+					
 				} else {
 					tempNode.color[0] = 0.0f;
 					tempNode.color[1] = 0.8f;	
@@ -681,6 +688,57 @@ bool CGameBase::ProcessRenderState () {
 			}
 		}
 	}
+
+	//RNL Typed Text borders
+	STempRenderNode textOutlineNode;
+
+	textOutlineNode.textureHandle = miscTextures[1];
+
+	//Start with drop shadows
+	textOutlineNode.color[0] = 0.7f;
+	textOutlineNode.color[1] = 0.7f;	
+	textOutlineNode.color[2] = 0.7f;
+	textOutlineNode.color[3] = 1.0f;
+
+	textOutlineNode.scale = D3DXVECTOR3(13.5,0.1,1);
+	textOutlineNode.pos = D3DXVECTOR3(789, 583, 0);
+	graphics.addRenderNode(textOutlineNode);
+	textOutlineNode.pos = D3DXVECTOR3(789, 113, 0);
+	graphics.addRenderNode(textOutlineNode);
+	textOutlineNode.scale = D3DXVECTOR3(0.1,1.1,1);
+	textOutlineNode.pos = D3DXVECTOR3(993,598,0);
+	graphics.addRenderNode(textOutlineNode);
+	textOutlineNode.scale = D3DXVECTOR3(0.1,15.1,1);
+	textOutlineNode.pos = D3DXVECTOR3(993,338,0);
+	graphics.addRenderNode(textOutlineNode);
+
+	textOutlineNode.color[0] = 0.0f;
+	textOutlineNode.color[1] = 0.0f;	
+	textOutlineNode.color[2] = 0.0f;
+	textOutlineNode.color[3] = 1.0f;
+
+	textOutlineNode.scale = D3DXVECTOR3(13.5,0.1,1);
+	textOutlineNode.pos = D3DXVECTOR3(788, 615, 0);
+	graphics.addRenderNode(textOutlineNode);
+	textOutlineNode.pos = D3DXVECTOR3(788, 585, 0);
+	graphics.addRenderNode(textOutlineNode);
+	textOutlineNode.pos = D3DXVECTOR3(788, 565, 0);
+	graphics.addRenderNode(textOutlineNode);
+	textOutlineNode.pos = D3DXVECTOR3(788, 115, 0);
+	graphics.addRenderNode(textOutlineNode);
+
+	textOutlineNode.scale = D3DXVECTOR3(0.1,1.1,1);
+	textOutlineNode.pos = D3DXVECTOR3(585,600,0);
+	graphics.addRenderNode(textOutlineNode);
+	textOutlineNode.pos = D3DXVECTOR3(991,600,0);
+	graphics.addRenderNode(textOutlineNode);
+
+	textOutlineNode.scale = D3DXVECTOR3(0.1,15.1,1);
+	textOutlineNode.pos = D3DXVECTOR3(585,340,0);
+	graphics.addRenderNode(textOutlineNode);
+	textOutlineNode.pos = D3DXVECTOR3(991,340,0);
+	graphics.addRenderNode(textOutlineNode);
+
 
 	int bufferPos = 0;
 	int bufferChar = typingBuffer[bufferPos];
@@ -709,7 +767,7 @@ bool CGameBase::ProcessRenderState () {
 			tempNode.pos = D3DXVECTOR3(600 + i * 25, 550 - count * 30, 0);
 			if (selectionPos == count) {
 				tempNode.color[0] = 0.0f;
-				tempNode.color[1] = 0.5f;	
+				tempNode.color[1] = 0.7f;	
 				tempNode.color[2] = 0.0f;
 				tempNode.color[3] = 1.0f;
 			} else {
@@ -776,6 +834,7 @@ void CGameBase::UpdateTypingBuffer(int alphaCharacter) {
 }
 void CGameBase::CopyTypingBufferToWordList() {
 
+	if (wordList.size() == MAX_WORD_LIST_LENGTH) return;
 	std::vector<int> temp;
 
 	int pos = 0;
