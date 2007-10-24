@@ -23,6 +23,7 @@ enum EControlFocus {
 // TODO - we would like this to be a pure base class
 // projects would derive a game class from CGameBase
 #define MAX_TYPING_BUFFER 17
+#define MAX_WORD_LIST_LENGTH 15 //RNL
 class CGameBase : public CSystemBase
 {
 public:
