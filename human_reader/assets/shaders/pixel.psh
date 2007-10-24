@@ -29,7 +29,8 @@ PS_OUTPUT main( in PS_INPUT In )
 
     Out.Color = tex2D(Tex0, In.Texture1);       //do a texture lookup
 
-	Out.Color *= In.Color;
+	Out.Color.rgb = 1.0 - Out.Color;
+	Out.Color.rgb += In.Color;
 
     return Out;                                //return output pixel
 }

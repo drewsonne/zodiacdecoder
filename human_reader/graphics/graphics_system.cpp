@@ -468,7 +468,7 @@ void CGraphicsSystem::Render() {
 	// Handle the mouse cursor
 	d3dDevice->ShowCursor(true);
 
-	d3dDevice->Clear(0,NULL,D3DCLEAR_TARGET,0xFF000000,1.0f,0L);
+	d3dDevice->Clear(0,NULL,D3DCLEAR_TARGET,0xFFFFFFFF,1.0f,0L);  //RNL Black to White
 	d3dDevice->BeginScene();
         //communicate with shader (NEW)
         D3DXMATRIXA16 matWorld, matView, matProj;

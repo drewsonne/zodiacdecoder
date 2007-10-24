@@ -46,6 +46,8 @@ CGameBase::CGameBase() {
 	fatalError = false;
 	alphaTextures.clear();
 	cipherTextures.clear();
+	borderTextures.clear();  //RNL
+	miscTextures.clear(); //RNL
 	typingBuffer[0] = -1;
 	currentTypingPos = 0;
 	focus = FOCUS_TYPING;
@@ -66,6 +68,8 @@ CGameBase::~CGameBase() {
 	Shutdown();
 	alphaTextures.clear();
 	cipherTextures.clear();
+	borderTextures.clear();  //RNL
+	miscTextures.clear(); //RNL
 	keyMap.clear();
 	currentKeyMap.clear();
 	conflictingKeyMap.clear();
@@ -226,6 +230,46 @@ bool CGameBase::InitializeGame() {
 
 		cipherTextures.push_back(tempHandle);
 	}
+
+	//RNL Border images
+	for (int i = 0; i <= 7; i++) {
+		sprintf_s(fileName,256,"%s/border/border.%d.png",graphics.texturePath.c_str(),i);
+		TextureHandle tempHandle = graphics.getTexture(fileName);
+		if(tempHandle.isNull()) {
+			return false;
+		}
+
+		if (!graphics.cacheTexture(tempHandle)) {
+			assert(false);
+			return false;
+		}
+
+		borderTextures.push_back(tempHandle);
+	}
+
+	//RNL Misc images
+	sprintf_s(fileName,256,"%s/stock/Logo.png",graphics.texturePath.c_str());
+	TextureHandle miscHandle = graphics.getTexture(fileName);
+	if(miscHandle.isNull()) {
+		return false;
+	}
+
+	if (!graphics.cacheTexture(miscHandle)) {
+		assert(false);
+		return false;
+	}
+	miscTextures.push_back(miscHandle);
+	sprintf_s(fileName,256,"%s/stock/white.png",graphics.texturePath.c_str());
+	miscHandle = graphics.getTexture(fileName);
+	if(miscHandle.isNull()) {
+		return false;
+	}
+
+	if (!graphics.cacheTexture(miscHandle)) {
+		assert(false);
+		return false;
+	}
+	miscTextures.push_back(miscHandle);
 
 	std::ifstream inFile("340index.txt", std::ios_base::in);
 	if(inFile.fail()) {
@@ -518,7 +562,66 @@ bool CGameBase::ProcessRenderState () {
 	graphics.SetProjection();
 
 	graphics.clearRenderNodes();
+
 	CalculateKeyMap();
+
+	//RNL Border Placement
+	STempRenderNode borderNode;
+	borderNode.scale = D3DXVECTOR3(1,1,1);
+	borderNode.color[0] = 0.3f;
+	borderNode.color[1] = 0.1f;	
+	borderNode.color[2] = 0.0f;
+	borderNode.color[3] = 1.0f;
+	borderNode.textureHandle = borderTextures[0];
+	borderNode.pos = D3DXVECTOR3(15,753,0);
+	graphics.addRenderNode(borderNode);
+	borderNode.textureHandle = borderTextures[2];
+	borderNode.pos = D3DXVECTOR3(559,753,0);
+	graphics.addRenderNode(borderNode);
+	borderNode.textureHandle = borderTextures[5];
+	borderNode.pos = D3DXVECTOR3(15,119,0);
+	graphics.addRenderNode(borderNode);
+	borderNode.textureHandle = borderTextures[7];
+	borderNode.pos = D3DXVECTOR3(559,119,0);
+	graphics.addRenderNode(borderNode);
+	borderNode.textureHandle = borderTextures[1];
+	borderNode.pos = D3DXVECTOR3(287,753,0);
+	borderNode.scale = D3DXVECTOR3(17.15,1,1);
+	graphics.addRenderNode(borderNode);
+	borderNode.textureHandle = borderTextures[3];
+	borderNode.pos = D3DXVECTOR3(15,436,0);
+	borderNode.scale = D3DXVECTOR3(1,20.15,1);
+	graphics.addRenderNode(borderNode);
+	borderNode.textureHandle = borderTextures[4];
+	borderNode.pos = D3DXVECTOR3(559,436,0);
+	borderNode.scale = D3DXVECTOR3(1,20.15,1);
+	graphics.addRenderNode(borderNode);
+	borderNode.textureHandle = borderTextures[6];
+	borderNode.pos = D3DXVECTOR3(287,119,0);
+	borderNode.scale = D3DXVECTOR3(17.15,1,1);
+	graphics.addRenderNode(borderNode);
+
+	//RNL Logo Placement
+	STempRenderNode logoNode;
+	logoNode.scale = D3DXVECTOR3(12,12,12);
+	logoNode.color[0] = 0.0f;
+	logoNode.color[1] = 0.0f;	
+	logoNode.color[2] = 0.0f;
+	logoNode.color[3] = 1.0f;
+	logoNode.textureHandle = miscTextures[0];
+	logoNode.pos = D3DXVECTOR3(790,570,0);
+	graphics.addRenderNode(logoNode);
+
+	//RNL Underline Init
+	STempRenderNode underlineNode;
+	underlineNode.scale = D3DXVECTOR3(1,0.1,1);
+	underlineNode.color[0] = 0.7f;
+	underlineNode.color[1] = 0.7f;	
+	underlineNode.color[2] = 0.0f;
+	underlineNode.color[3] = 1.0f;
+	underlineNode.textureHandle = miscTextures[1];
+	bool underline = false;
+
 	for (int i = 0; i < 20; i++) {
 		for (int k = 0; k < 17; k++) {
 			STempRenderNode tempNode;
@@ -528,46 +631,54 @@ bool CGameBase::ProcessRenderState () {
 			if (keyMap[cipherCharacter] >= 0 && keyMap[cipherCharacter] <= 35) {
 				tempNode.textureHandle = alphaTextures[keyMap[cipherCharacter]];
 				if (conflictingKeyMap[cipherCharacter] != -1) {
-					tempNode.color[0] = 1.0f;
+					tempNode.color[0] = 0.8f;
 					tempNode.color[1] = 0.0f;	
 					tempNode.color[2] = 0.0f;
 					tempNode.color[3] = 1.0f;
 				} else {
 					tempNode.color[0] = 0.0f;
 					tempNode.color[1] = 0.0f;	
-					tempNode.color[2] = 1.0f;
+					tempNode.color[2] = 0.8f;
 					tempNode.color[3] = 1.0f;
 				}
 			} else if (currentKeyMap[cipherCharacter] >= 0 && currentKeyMap[cipherCharacter] <= 35) {
 				tempNode.textureHandle = alphaTextures[currentKeyMap[cipherCharacter]];
 				if (conflictingKeyMap[cipherCharacter] != -1) {
-					tempNode.color[0] = 1.0f;
+					tempNode.color[0] = 0.8f;
 					tempNode.color[1] = 0.0f;	
 					tempNode.color[2] = 0.0f;
 					tempNode.color[3] = 1.0f;
 				} else if (cipherPosition >= wordPos[selectionPos] && cipherPosition <= wordPos[selectionPos] + wordList[selectionPos].size()) {
-					tempNode.color[0] = 1.0f;
-					tempNode.color[1] = 1.0f;	
+					tempNode.color[0] = 0.7f;
+					tempNode.color[1] = 0.7f;	
 					tempNode.color[2] = 0.0f;
 					tempNode.color[3] = 1.0f;
 					tempNode.scale = D3DXVECTOR3(1.25,1.25,1);
+					underline = true; //RNL Underline flag
 				} else {
 					tempNode.color[0] = 0.0f;
-					tempNode.color[1] = 1.0f;	
+					tempNode.color[1] = 0.8f;	
 					tempNode.color[2] = 0.0f;
 					tempNode.color[3] = 1.0f;
 					tempNode.scale = D3DXVECTOR3(1.1,1.1,1);
 				}
 			} else {
 				tempNode.textureHandle = cipherTextures[cipherCharacter];
-				tempNode.color[0] = 1.0f;
-				tempNode.color[1] = 1.0f;	
-				tempNode.color[2] = 1.0f;
+				tempNode.color[0] = 0.0f;
+				tempNode.color[1] = 0.0f;	
+				tempNode.color[2] = 0.0f;
 				tempNode.color[3] = 1.0f;
 			}
-			tempNode.pos = D3DXVECTOR3(35 + k * 30, 650 - i * 30, 0);
+			tempNode.pos = D3DXVECTOR3(47 + k * 30, 719 - i * 30, 0);
 
 			graphics.addRenderNode(tempNode);
+
+			//RNL Underline Placement
+			if(underline){
+				underlineNode.pos = D3DXVECTOR3(47 + k * 30, 705 - i * 30, 0);
+				underline = false;
+				graphics.addRenderNode(underlineNode);
+			}
 		}
 	}
 
@@ -576,10 +687,10 @@ bool CGameBase::ProcessRenderState () {
 	while(bufferChar >= 0 && bufferChar <= 35 && bufferPos < MAX_TYPING_BUFFER) {
 		STempRenderNode tempNode;
 		tempNode.textureHandle = alphaTextures[bufferChar];
-		tempNode.pos = D3DXVECTOR3(600 + bufferPos * 25, 700, 0);
-		tempNode.color[0] = 0.8f;
-		tempNode.color[1] = 0.8f;	
-		tempNode.color[2] = 0.8f;
+		tempNode.pos = D3DXVECTOR3(600 + bufferPos * 25, 600, 0);
+		tempNode.color[0] = 0.2f;
+		tempNode.color[1] = 0.2f;	
+		tempNode.color[2] = 0.2f;
 		tempNode.color[3] = 1.0f;
 		graphics.addRenderNode(tempNode);	
 		++bufferPos;
@@ -595,16 +706,16 @@ bool CGameBase::ProcessRenderState () {
 		for (int i = 0; i < (*it).size(); i++) {
 			STempRenderNode tempNode;
 			tempNode.textureHandle = alphaTextures[(*it)[i]];
-			tempNode.pos = D3DXVECTOR3(600 + i * 25, 650 - count * 30, 0);
+			tempNode.pos = D3DXVECTOR3(600 + i * 25, 550 - count * 30, 0);
 			if (selectionPos == count) {
 				tempNode.color[0] = 0.0f;
-				tempNode.color[1] = 0.8f;	
+				tempNode.color[1] = 0.5f;	
 				tempNode.color[2] = 0.0f;
 				tempNode.color[3] = 1.0f;
 			} else {
-				tempNode.color[0] = 0.7f;
-				tempNode.color[1] = 0.7f;	
-				tempNode.color[2] = 0.7f;
+				tempNode.color[0] = 0.3f;
+				tempNode.color[1] = 0.3f;	
+				tempNode.color[2] = 0.3f;
 				tempNode.color[3] = 1.0f;
 			}
 			graphics.addRenderNode(tempNode);			
@@ -613,26 +724,40 @@ bool CGameBase::ProcessRenderState () {
 		++it;
 	}
 
+
+	//RNL Cipher Image Placement
+	for(int i=0;i<63;i++){
+		STempRenderNode tempNode;
+		tempNode.textureHandle = cipherTextures[i];
+		tempNode.color[0] = 0.0f;
+		tempNode.color[1] = 0.0f;	
+		tempNode.color[2] = 0.0f;
+		tempNode.color[3] = 1.0f;
+		tempNode.pos = D3DXVECTOR3(16 + i * 16, 50, 0);
+		tempNode.scale = D3DXVECTOR3(.6, .6, 1);
+		graphics.addRenderNode(tempNode);
+	}
+
 	for (int i = 0; i < 63; i++) {
 		if (keyMap[i] != -1) {
 			STempRenderNode tempNode;
 			tempNode.textureHandle = alphaTextures[keyMap[i]];
-			tempNode.color[0] = 1.0f;
-			tempNode.color[1] = 1.0f;	
-			tempNode.color[2] = 1.0f;
+			tempNode.color[0] = 0.0f;
+			tempNode.color[1] = 0.0f;	
+			tempNode.color[2] = 0.7f;
 			tempNode.color[3] = 1.0f;
-			tempNode.pos = D3DXVECTOR3(16 + i * 16, 45, 0);
-			tempNode.scale = D3DXVECTOR3(.9, .9, 1);
+			tempNode.pos = D3DXVECTOR3(16 + i * 16, 30, 0);
+			tempNode.scale = D3DXVECTOR3(.6, .6, 1);  //RNL Scaled down
 			graphics.addRenderNode(tempNode);
 		} else if (currentKeyMap[i] != -1) {
 			STempRenderNode tempNode;
 			tempNode.textureHandle = alphaTextures[currentKeyMap[i]];
 			tempNode.color[0] = 0.0f;
-			tempNode.color[1] = 1.0f;	
+			tempNode.color[1] = 0.7f;	
 			tempNode.color[2] = 0.0f;
 			tempNode.color[3] = 1.0f;
-			tempNode.pos = D3DXVECTOR3(16 + i * 16, 45, 0);
-			tempNode.scale = D3DXVECTOR3(.9, .9, 1);
+			tempNode.pos = D3DXVECTOR3(16 + i * 16, 30, 0);
+			tempNode.scale = D3DXVECTOR3(.6, .6, 1);  //RNL Scaled down
 			graphics.addRenderNode(tempNode);
 		}
 	}

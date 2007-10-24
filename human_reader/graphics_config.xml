@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <AssetPath>./assets</AssetPath>
 <TexturePath>textures</TexturePath>
@@ -105,4 +105,16 @@
 		<Texture name="cipher/cipher.60.png"/>
 		<Texture name="cipher/cipher.61.png"/>
 		<Texture name="cipher/cipher.62.png"/>
+
+		<Texture name="border/border.0.png"/>
+		<Texture name="border/border.1.png"/>
+		<Texture name="border/border.2.png"/>
+		<Texture name="border/border.3.png"/>
+		<Texture name="border/border.4.png"/>
+		<Texture name="border/border.5.png"/>
+		<Texture name="border/border.6.png"/>
+		<Texture name="border/border.7.png"/>
+
+		<Texture name="stock/Logo.png"/>
+		<Texture name="stock/white.png"/>
 </Textures>

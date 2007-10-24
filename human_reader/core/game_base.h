@@ -70,6 +70,8 @@ public:
 	
 	std::vector<TextureHandle> alphaTextures;
 	std::vector<TextureHandle> cipherTextures;
+	std::vector<TextureHandle> borderTextures;  //RNL
+	std::vector<TextureHandle> miscTextures; //RNL
 	std::vector<int> cipherText;
 	std::vector<int> keyMap;
 	std::vector<int> currentKeyMap;
