@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dinput8.lib dxguid.lib dxerr9.lib D3dx9.lib d3d9.lib  dsound.lib Dxguid.lib winmm.lib"
+				AdditionalDependencies="dinput8.lib dxguid.lib dxerr9.lib D3dx9.lib d3d9.lib  dsound.lib Dxguid.lib winmm.lib ws2_32.lib mswsock.lib advapi32.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;C:\Program Files\Microsoft DirectX SDK (August 2007)\Lib\x86&quot;"
 				GenerateDebugInformation="true"
@@ -460,6 +460,10 @@
 				>
 				<File
 					RelativePath=".\core\base_include.h"
+					>
+				</File>
+				<File
+					RelativePath=".\core\Client.h"
 					>
 				</File>
 				<File

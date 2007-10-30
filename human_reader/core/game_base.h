@@ -8,10 +8,11 @@
 //		handles project independent game systems and initialization
 /////////////////////////////////////////////////////////////////////
 
-#include "graphics_system.h"
+#include "../graphics/graphics_system.h"
 #include "input_system.h"
 #include "system_base.h"
 #include "string.h"
+#include "hash_table.h" //RNL
 #include <vector>
 
 enum EControlFocus {
@@ -20,6 +21,7 @@ enum EControlFocus {
 	FOCUS_POSITION,
 	FOCUS_RANDOM
 };
+
 // TODO - we would like this to be a pure base class
 // projects would derive a game class from CGameBase
 #define MAX_TYPING_BUFFER 17
@@ -81,8 +83,12 @@ public:
 	int currentTypingPos;
 	EControlFocus focus;
 	std::vector<std::vector<int> > wordList;
+	std::vector<std::vector<int> > keyWordList; //RNL
 	int selectionPos;
+	int underlinecounter; //RNL
 	std::vector<int> wordPos;
+
+	char* serverKeys;  //RNL Perhaps make this char** instead of 2d array?
 protected:
 
 	// --------------------------------------------------------------
@@ -128,6 +134,10 @@ protected:
 	void UpdateTypingBuffer(int alphaCharacter);
 	void CopyTypingBufferToWordList();
 	void CalculateKeyMap();
+	void makeNewKeyWordList(); //RNL
+	void CopyKeyWordToKeyWordList(string s); //RNL
+	CHashTable<int> Dictionary;
+	void InitializeDictionary();
 private:
 
 };

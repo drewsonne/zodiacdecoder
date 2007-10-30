@@ -1,5 +1,26 @@
-#include "game_base.h"	
+#include "game_base.h"
+//#include "Client.h"
 #include <fstream>
+#include <string>
+#include <iostream>
+//#include "Stl.h"
+//#include "hash_fun.h"
+#include "hash_table.h"
+
+//RNL Uncomment the below code when the server is running
+//#define WE_HAVE_ZODIAC_SERVER
+
+//RNL Uncomment the below code when this code can access the dictionary
+#define WE_HAVE_DICTIONARY
+
+#ifdef WE_HAVE_ZODIAC_SERVER
+//#include "../../SuperClient/Client.h"
+//#include "../../SuperClient/ZodiacClient.h"
+#endif 
+
+//#ifdef WE_HAVE_DICTIONARY
+//#include "../../zDecoder/Scorer.h" //RNL NOTE: need access to Dictionary
+//#endif 
 
 int convertKeyToChar(int key) {
 	if (key >= DIK_1 && key <= DIK_0) {
@@ -53,7 +74,10 @@ CGameBase::CGameBase() {
 	focus = FOCUS_TYPING;
 	wordList.clear();
 	wordPos.clear();
+	keyWordList.clear(); //RNL
 	selectionPos = -1;
+	Dictionary.clear();
+	underlinecounter = 0;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -73,6 +97,8 @@ CGameBase::~CGameBase() {
 	keyMap.clear();
 	currentKeyMap.clear();
 	conflictingKeyMap.clear();
+	keyWordList.clear(); //RNL
+	Dictionary.clear();
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -297,6 +323,9 @@ bool CGameBase::InitializeGame() {
 		conflictingKeyMap.push_back(-1);
 	}
 	// Base class does nothing
+
+	InitializeDictionary(); //RNL
+
 	return true;
 }
 
@@ -373,6 +402,9 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			for (int i = 0; i < 63; i++) {
 				keyMap[i] = rand() % 26;
 			}
+			#ifdef WE_HAVE_DICTIONARY
+			  makeNewKeyWordList();
+            #endif
 		}
 		return true;
 	}
@@ -383,22 +415,107 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			for (int i = 0; i < 63; i++) {
 				keyMap[i] = rand() % 26;
 			}
+			#ifdef WE_HAVE_DICTIONARY
+			  makeNewKeyWordList();
+            #endif
 		}
 		return true;
 	}
 
 	if (input.IsKeyDown(DIK_F4)) {
 		if (focus == FOCUS_RANDOM) {
-			std::ifstream inFile("key.out", std::ios::in);
+			std::ifstream inFile;
+			string solution ="";
+			inFile.open("key.out");
+
+			
 			int i = 0;
+			char inputchar = 0;
 			while (!inFile.eof() && i < 63) {
-				inFile >> keyMap[i];
+				inputchar = inFile.get();
+				keyMap[i] = (int)(inputchar - 'A') ;
 				i++;
 			}
+			
 			inFile.close();
+			
+			#ifdef WE_HAVE_DICTIONARY
+			  makeNewKeyWordList();
+			#endif
+		}
+
+		return true;
+	}
+
+	/*
+	//RNL Read from standard input
+	if (input.IsKeyDown(DIK_F5)) {
+		if (focus == FOCUS_RANDOM) {
+			std::string inputstring;
+			std::getline(std::cin, inputstring);  //Is there a version for c-strings?
+			const char* inputstringchars = inputstring.std::string::c_str(); //Does this work? Cannot test.
+			for(int i = 0; i < 63; i++) {
+				//WARNING: Assumes keyMap and the input c-string are in the same format
+				//Note: KeyMap is a vector of ints, so you can't use that directly
+				keyMap[i] = (int)(inputstringchars[i++] - 'A'); 
+			}
+			#ifdef WE_HAVE_DICTIONARY
+			  makeNewKeyWordList();
+            #endif
 		}
 		return true;
 	}
+
+*/
+
+#ifdef WE_HAVE_ZODIAC_SERVER
+	//RNL Write to server
+	//One problem: this code does not take the delay of sending keys into consideration
+	if (input.IsKeyDown(DIK_F6)) {
+		if (focus == FOCUS_RANDOM) {
+			char* servername = "zodiacdecoder.dyndns.org";
+			char* port = "10002";
+			//Server Name
+			//WARNING: The following assumes keyMap is in same format as the server's key map
+			//Note: KeyMap is a vector of ints, so you can't use that directly
+			char charKeyMap[63];
+			for(int i = 0;i<63;i++){
+				charKeyMap[i] = (char)keyMap[i] + 'A';
+			}
+			if (sendToServer(servername, port, charKeyMap)==0){ 
+				//Put something here to say the key was sent, perhaps flag something
+			}
+			else {
+				//Put something here to say the key was not sent, perhaps flag something
+			} 
+			#ifdef WE_HAVE_DICTIONARY
+			  makeNewKeyWordList();
+            #endif
+		}
+		return true;
+	}
+
+	//RNL Write to server
+	//One problem: this code does not take the delay of sending keys into consideration
+	if (input.IsKeyDown(DIK_F7)) {
+		if (focus == FOCUS_RANDOM) {
+			char* servername = "zodiacdecoder.dyndns.org"; //Server Name
+			//WARNING: The following assumes keyMap is in same format as the server's key map
+			//Note: KeyMap is a vector of ints, so you can't use that directly
+			if (receiveKeysFromServer(serverKeys)==0){ 
+				//Put something here to say the key was received?
+			}
+			else {
+				//Put something here to say the key was not received, perhaps flag something
+			} 
+			#ifdef WE_HAVE_DICTIONARY
+			  makeNewKeyWordList();
+            #endif
+		}
+		return true;
+	}
+
+#endif
 
 	if (input.IsKeyDown(DIK_BACK)) {
 		std::vector<std::vector<int> >::iterator it;
@@ -459,6 +576,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 				}
 				break;
 		}
+		
 		return true;
 	}
 
@@ -651,6 +769,9 @@ bool CGameBase::ProcessRenderState () {
 					tempNode.color[1] = 0.0f;	
 					tempNode.color[2] = 0.0f;
 					tempNode.color[3] = 1.0f;
+					underlineNode.scale = D3DXVECTOR3(0.7,0.05,1);
+					underlineNode.color[1] = 0.0f;
+					underline = true; //RNL Underline flag
 				} else if (cipherPosition >= wordPos[selectionPos] && cipherPosition < wordPos[selectionPos] + wordList[selectionPos].size()) {
 					//RNL fixed a small bug in the above condition
 					tempNode.color[0] = 0.7f;
@@ -758,28 +879,67 @@ bool CGameBase::ProcessRenderState () {
 		bufferChar = typingBuffer[bufferPos];
 	}
 
-	std::vector<std::vector<int> >::iterator it = wordList.begin();
-	int count = 0;
-	while (it != wordList.end()) {
-		for (int i = 0; i < (*it).size(); i++) {
-			STempRenderNode tempNode;
-			tempNode.textureHandle = alphaTextures[(*it)[i]];
-			tempNode.pos = D3DXVECTOR3(600 + i * 25, 550 - count * 30, 0);
-			if (selectionPos == count) {
-				tempNode.color[0] = 0.0f;
-				tempNode.color[1] = 0.7f;	
-				tempNode.color[2] = 0.0f;
-				tempNode.color[3] = 1.0f;
-			} else {
-				tempNode.color[0] = 0.3f;
-				tempNode.color[1] = 0.3f;	
-				tempNode.color[2] = 0.3f;
-				tempNode.color[3] = 1.0f;
+	underlinecounter++;
+	if(bufferPos < MAX_TYPING_BUFFER - 1 && underlinecounter < 30){
+		//RNL fancy flashing underline
+		STempRenderNode flashyNode;
+		flashyNode.color[0] = 0.2f;
+		flashyNode.color[1] = 0.2f;	
+		flashyNode.color[2] = 0.2f;
+		flashyNode.color[3] = 1.0f;
+		flashyNode.scale = D3DXVECTOR3(0.8,0.1,1);
+		flashyNode.textureHandle = miscTextures[1];
+		flashyNode.pos = D3DXVECTOR3(600 + bufferPos * 25, 588, 0);
+		graphics.addRenderNode(flashyNode);
+	}
+	if(underlinecounter >= 60){
+		underlinecounter = 0;
+	}
+//RNL changed this to display two different word lists depending on focus
+	if(focus != FOCUS_RANDOM){
+		std::vector<std::vector<int> >::iterator it = wordList.begin();
+		int count = 0;
+		while (it != wordList.end()) {
+			for (int i = 0; i < (*it).size(); i++) {
+				STempRenderNode tempNode;
+				tempNode.textureHandle = alphaTextures[(*it)[i]];
+				tempNode.pos = D3DXVECTOR3(600 + i * 25, 550 - count * 30, 0);
+				if (selectionPos == count) {
+					tempNode.color[0] = 0.0f;
+					tempNode.color[1] = 0.7f;	
+					tempNode.color[2] = 0.0f;
+					tempNode.color[3] = 1.0f;
+				} else {
+					tempNode.color[0] = 0.3f;
+					tempNode.color[1] = 0.3f;	
+					tempNode.color[2] = 0.3f;
+					tempNode.color[3] = 1.0f;
+				}
+				graphics.addRenderNode(tempNode);			
 			}
-			graphics.addRenderNode(tempNode);			
+			++count;
+			++it;
 		}
-		++count;
-		++it;
+	}
+	else{
+#ifdef WE_HAVE_DICTIONARY
+		std::vector<std::vector<int> >::iterator it = keyWordList.begin();
+			int count = 0;
+			while (it != keyWordList.end()) {
+				for (int i = 0; i < (*it).size(); i++) {
+					STempRenderNode tempNode;
+					tempNode.textureHandle = alphaTextures[(*it)[i]];
+					tempNode.pos = D3DXVECTOR3(600 + i * 25, 550 - count * 30, 0);
+					tempNode.color[0] = 0.0f;
+					tempNode.color[1] = 0.7f;	
+					tempNode.color[2] = 0.0f;
+					tempNode.color[3] = 1.0f;
+					graphics.addRenderNode(tempNode);			
+				}
+				++count;
+				++it;
+			}
+#endif
 	}
 
 
@@ -902,4 +1062,67 @@ void CGameBase::CalculateKeyMap() {
 		}
 	}
 			
+}
+
+void CGameBase::makeNewKeyWordList(){
+
+#ifdef WE_HAVE_DICTIONARY
+
+	std::ofstream fout;
+    fout.open("test.txt", std::ios::out);
+	int stringcount = 0;
+	keyWordList.clear();
+
+	string solution = "";
+	string word = "";
+
+	for(int i = 0; i < 340; i++){
+		solution += (char)(keyMap[cipherText[i]]) + 'a';
+	}
+
+	for(int c = 0; c < 339; c++)
+	{
+		for(int s = 2; s <= 12; s++){
+			word = solution.substr(c, s);
+			if(Dictionary.GetWordScore(Dictionary, word) > 0) {
+				CopyKeyWordToKeyWordList(word);
+				fout << stringcount++ << ": " << word << std::endl;
+			}
+			if (keyWordList.size() >= MAX_WORD_LIST_LENGTH) break;
+		}
+		if (keyWordList.size() >= MAX_WORD_LIST_LENGTH) break;
+	}
+
+    fout.close();
+
+#endif
+
+}
+
+void CGameBase::CopyKeyWordToKeyWordList(string s){
+
+#ifdef WE_HAVE_DICTIONARY
+
+	std::vector<int> temp;
+
+	for(int pos = 0; pos < s.size(); pos++){
+		temp.push_back((int)(s[pos] - 'a'));
+	}
+
+	keyWordList.push_back(temp);
+
+#endif
+
+}
+
+void CGameBase::InitializeDictionary()
+{
+	int Scores[1001];
+	for (int i = 0; i < 1001; i++) 
+	{								
+	  Scores[i] = i;
+	}
+
+	Dictionary.FillDictionary(Dictionary, "words.txt", Scores, 1000); 
+
 }

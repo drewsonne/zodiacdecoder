@@ -155,7 +155,7 @@ bool CInputSystem::CreateMouseDevice()
 }
 
 /////////////////////////////////////////////////////////////////////
-//							            CInputSystem::AcquireKeyboard
+//							               CInputSystem::AcquireMouse
 /////////////////////////////////////////////////////////////////////
 bool CInputSystem::AcquireMouse()
 {
@@ -171,6 +171,7 @@ bool CInputSystem::AcquireMouse()
 
 	return true;
 }
+
 
 /////////////////////////////////////////////////////////////////////
 //							       CInputSystem::CreateKeyboardDevice

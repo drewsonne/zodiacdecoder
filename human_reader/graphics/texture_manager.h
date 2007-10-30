@@ -2,9 +2,9 @@
 #define __TEXTURE_MANAGER_H__
 
 #include <vector>
-#include "string_base.h"
-#include "handles.h"
-#include "index_manager.h"
+#include "../common/string_base.h"
+#include "../common/handles.h"
+#include "../common/index_manager.h"
 
 struct STextureResource {
 	STextureResource() : name(""), data(NULL) {};
