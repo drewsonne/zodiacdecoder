@@ -1,7 +1,10 @@
+
+#pragma once
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
+//#pragma once
 
 // Need to link with Ws2_32.lib, Mswsock.lib, and Advapi32.lib
 
@@ -16,19 +19,19 @@
 //please make sure what you make is an array like so [10][63] plz.
 //If it doesn't like it, plz cast it to (char **&). kthxbye
 
-int getKeysFromServer(char** &keys) 
+int getKeysFromServer(char* keys) 
 {
     WSADATA wsaData;
     SOCKET ConnectSocket = INVALID_SOCKET;
     struct addrinfo *result = NULL,
                     *ptr = NULL,
                     hints;
-    char *sendbuf = "gimmeh sum keyz";
+    char *sendbuf = "9";
     char recvbuf[DEFAULT_BUFLEN];
     int iResult;
     int recvbuflen = DEFAULT_BUFLEN * NUM_KEYS;
 // Server name goes here!
-    char *serverName="localhost";
+    char *serverName="zodiacdecoder.dyndns.org";
     
 
     // Initialize Winsock
@@ -92,6 +95,7 @@ int getKeysFromServer(char** &keys)
     }
 
     printf("Bytes Sent: %ld\n", iResult);
+	//printf("%c", sendbuf[0]);
 
     // shutdown the connection since no more data will be sent
     iResult = shutdown(ConnectSocket, SD_SEND);
@@ -110,14 +114,10 @@ int getKeysFromServer(char** &keys)
         // and have the server send a number stating the number of keys it will be sending. Should be fairly straight
         // forward though.
         iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
+		//printf("%s %d", recvbuf,63);
 		if ( iResult > 0 ){
-            printf("Bytes received: %d\n", iResult);
-			char tmp[63];
-			for(int i = 0; i < NUM_KEYS; i++){
-				for(int j = 0; j < DEFAULT_BUFLEN; j++){
-					tmp[j] = recvbuf[j + i*DEFAULT_BUFLEN];
-				}
-				keys[i] = tmp;
+			for(int i = 0; i < 63; i++){
+				keys[i] = recvbuf[i];
 			}
 		}
         else if ( iResult == 0 )
@@ -125,7 +125,8 @@ int getKeysFromServer(char** &keys)
         else
             printf("recv failed: %d\n", WSAGetLastError());
 
-    } while( iResult > 0 );
+	} while (false);
+	//while( iResult > 0 );
 
     // cleanup
     closesocket(ConnectSocket);
@@ -133,14 +134,12 @@ int getKeysFromServer(char** &keys)
 
     return 0;
 }
-int vote(char* server, char* sendbuf, bool vote)
+int sendToServer(char* server, char* port, char* sendbuf)
 {
 	char* sendVoteBuf = new char[64]();
 	for(int i = 0; i < 63; i++)
 		sendVoteBuf[i] = sendbuf[i];
-	sendVoteBuf[63] = '0';
-	if(vote)
-		sendVoteBuf[63] = '1';
+
     WSADATA wsaData;
     SOCKET ConnectSocket = INVALID_SOCKET;
     struct addrinfo *result = NULL,
@@ -164,7 +163,7 @@ int vote(char* server, char* sendbuf, bool vote)
     hints.ai_protocol = IPPROTO_TCP;
 
     // Resolve the server address and port
-    iResult = getaddrinfo(server, "80", &hints, &result);
+    iResult = getaddrinfo(server, port, &hints, &result);
     if ( iResult != 0 ) {
 		printf("%s\n", server);
         printf("getaddrinfo failed: %d\n", iResult);
@@ -204,7 +203,7 @@ int vote(char* server, char* sendbuf, bool vote)
     }
 
     // Send the key to server.
-    iResult = send( ConnectSocket, sendVoteBuf, 64, 0 );
+    iResult = send( ConnectSocket, sendVoteBuf, 65, 0 );
     if (iResult == SOCKET_ERROR) {
         printf("send failed: %d\n", WSAGetLastError());
         closesocket(ConnectSocket);
