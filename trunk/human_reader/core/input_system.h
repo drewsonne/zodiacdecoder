@@ -12,7 +12,7 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <assert.h>
 #include <dinput.h>
-#include "system_base.h"
+#include "../core/system_base.h"
 
 class CInputSystem : public CSystemBase {
 

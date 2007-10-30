@@ -10,7 +10,7 @@
 /////////////////////////////////////////////////////////////////////
 
 #include <d3d9.h>
-#include "system_base.h"
+#include "../core/system_base.h"
 #include "texture_manager.h"
 #include <list>
 #include <d3dx9.h>
