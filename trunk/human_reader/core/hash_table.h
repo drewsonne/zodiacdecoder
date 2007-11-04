@@ -321,7 +321,6 @@ int GetWordScore(CHashTable<int> &Dictionary, std::string Word) {
 };
 
 
-
 protected:
   long   prime;
   long   (*hf)(const std::string& c, const long prime);
