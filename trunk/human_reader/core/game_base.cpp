@@ -8,12 +8,13 @@
 #include "hash_table.h"
 
 //RNL Uncomment the below code when the server is running
-//#define WE_HAVE_ZODIAC_SERVER
+#define WE_HAVE_ZODIAC_SERVER
 
 //RNL Uncomment the below code when this code can access the dictionary
 #define WE_HAVE_DICTIONARY
 
 #ifdef WE_HAVE_ZODIAC_SERVER
+#include "Client.h"
 //#include "../../SuperClient/Client.h"
 //#include "../../SuperClient/ZodiacClient.h"
 #endif 
