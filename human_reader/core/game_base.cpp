@@ -312,8 +312,7 @@ bool CGameBase::InitializeGame() {
 			assert(false);
 			return false;
 		}
-
-		cipherText.push_back(tempInt);
+			cipherText.push_back(tempInt);
 	}
 
 	inFile.close();
@@ -424,6 +423,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 	}
 
 	if (input.IsKeyDown(DIK_F4)) {
+		if(focus == FOCUS_TYPING) focus = FOCUS_RANDOM;
 		if (focus == FOCUS_RANDOM) {
 			std::ifstream inFile;
 			string solution ="";
@@ -1079,15 +1079,17 @@ void CGameBase::makeNewKeyWordList(){
 
 	for(int i = 0; i < 340; i++){
 		solution += (char)(keyMap[cipherText[i]]) + 'a';
+
 	}
 
 	for(int c = 0; c < 339; c++)
 	{
-		for(int s = 2; s <= 12; s++){
+		for(int s = 3; s <= 12; s++){
 			word = solution.substr(c, s);
-			if(Dictionary.GetWordScore(Dictionary, word) > 0) {
+			if(Dictionary.GetWordScore(Dictionary, word) != 0) {
 				CopyKeyWordToKeyWordList(word);
 				fout << stringcount++ << ": " << word << std::endl;
+				fout << keyWordList.size() << std::endl;
 			}
 			if (keyWordList.size() >= MAX_WORD_LIST_LENGTH) break;
 		}
@@ -1106,12 +1108,14 @@ void CGameBase::CopyKeyWordToKeyWordList(string s){
 
 	std::vector<int> temp;
 
-	for(int pos = 0; pos < s.size(); pos++){
+	int pos = 0;
+	while(pos < s.size()){
 		temp.push_back((int)(s[pos] - 'a'));
+		++pos;
 	}
 
 	keyWordList.push_back(temp);
-
+	temp.clear();
 #endif
 
 }
