@@ -1,5 +1,5 @@
 #include "game_base.h"
-//#include "Client.h"
+#include "Client.h"
 #include <fstream>
 #include <string>
 #include <iostream>
@@ -503,7 +503,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			char* servername = "zodiacdecoder.dyndns.org"; //Server Name
 			//WARNING: The following assumes keyMap is in same format as the server's key map
 			//Note: KeyMap is a vector of ints, so you can't use that directly
-			if (receiveKeysFromServer(serverKeys)==0){ 
+			if (getKeysFromServer(serverKeys)==0){ 
 				//Put something here to say the key was received?
 			}
 			else {
