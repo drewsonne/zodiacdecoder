@@ -483,10 +483,18 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			for(int i = 0;i<63;i++){
 				charKeyMap[i] = (char)keyMap[i] + 'A';
 			}
-			if (sendToServer(servername, port, charKeyMap)==0){ 
+						HWND hwnd2 = GetActiveWindow();
+			MessageBox(hwnd2, "Attempting to send key to server. Please ensure you are connected to the internet and have set your firewall to allow traffic over port 10002. Please click OK when you are ready.", "Sending key", 0);
+			if (sendToServer(servername, port, charKeyMap)==0){
+
 				//Put something here to say the key was sent, perhaps flag something
+				HWND hwnd1 = GetActiveWindow();
+				MessageBox(hwnd1, "Your good key was sent!", "Transfer Succeeded", 0);
+				
 			}
 			else {
+				HWND hwnd1 = GetActiveWindow();
+				MessageBox(hwnd1, "Key could not be sent to server. Check your firewall settings and your internet connection to ensure you are connected and may send over port 10002", "Connection Error", 0);
 				//Put something here to say the key was not sent, perhaps flag something
 			} 
 			#ifdef WE_HAVE_DICTIONARY
@@ -503,12 +511,25 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			char* servername = "zodiacdecoder.dyndns.org"; //Server Name
 			//WARNING: The following assumes keyMap is in same format as the server's key map
 			//Note: KeyMap is a vector of ints, so you can't use that directly
+			HWND hwnd2 = GetActiveWindow();
+			MessageBox(hwnd2, "Attempting to retrieve key from server. Please ensure you are connected to the internet and have set your firewall to allow traffic over port 10001. Please click OK when you are ready.", "Retrieving key", 0);
 			if (getKeysFromServer(serverKeys)==0){ 
 				//Put something here to say the key was received?
+				HWND hwnd1 = GetActiveWindow();
+				MessageBox(hwnd1, "Key retrieved! Click OK and press F4.", "Transfer Succeeded", 0);
+				std::ofstream fout;
+				fout.open("key.out", std::ios::out);
+				for(int i = 0; i < 63; i++){
+					fout << (char)(serverKeys[i] - 32);
+				}
+				fout.close();
 			}
 			else {
 				//Put something here to say the key was not received, perhaps flag something
-			} 
+				HWND hwnd1 = GetActiveWindow();
+				MessageBox(hwnd1, "Key could not be retrieved from server. Check your firewall settings and your internet connection to ensure you are connected and may send over port 10001", "Connection Error", 0);
+				
+			}
 			#ifdef WE_HAVE_DICTIONARY
 			  makeNewKeyWordList();
             #endif
