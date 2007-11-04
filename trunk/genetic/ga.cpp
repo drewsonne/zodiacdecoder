@@ -16,7 +16,7 @@
 #define GA_MUTATION		RAND_MAX * GA_MUTATIONRATE
 
 // can we meld this with the EM's most_likely_next?
-#define GA_TARGET		std::string("Arthur Leigh Allen is the Zodiac")
+#define GA_TARGET		std::string("watchyourback")
 
 using namespace std;				// polluting global namespace, but hey...
 
