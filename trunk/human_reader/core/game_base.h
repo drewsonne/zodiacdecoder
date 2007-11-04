@@ -88,7 +88,7 @@ public:
 	int underlinecounter; //RNL
 	std::vector<int> wordPos;
 
-	char* serverKeys;  //RNL Perhaps make this char** instead of 2d array?
+	char* serverKeys;
 protected:
 
 	// --------------------------------------------------------------
