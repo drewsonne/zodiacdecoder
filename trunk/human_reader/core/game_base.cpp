@@ -1,5 +1,4 @@
 #include "game_base.h"
-#include "Client.h"
 #include <fstream>
 #include <string>
 #include <iostream>
@@ -388,9 +387,9 @@ bool CGameBase::ProcessInputFrame (float dT) {
 		return false;
 	}
 
-	if (input.IsKeyDown(DIK_F1)) {
+	/*if (input.IsKeyDown(DIK_F1)) {
 		return graphics.ToggleFullscreen();
-	}
+	}*/
 
 	if (input.IsKeyDown(DIK_F2)) {
 		if (focus == FOCUS_RANDOM) {
