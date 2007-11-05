@@ -150,7 +150,9 @@ bool CInputSystem::CreateMouseDevice()
 	if(FAILED(hr)) {
 		return false;
 	}
-				
+
+
+
 	return true;
 }
 
@@ -277,7 +279,50 @@ bool CInputSystem::ReadKeyboardState()
 	
 
 }
+bool CInputSystem::ReadMouseState()
+{
+    HRESULT  hr; 
 
+	if (!mouseDevice) {
+		return false;
+	}
+
+	//---------------------------------------------------------------
+	//											   Get Keyboard State 
+	hr = mouseDevice->GetDeviceState(
+							sizeof(DIMOUSESTATE),
+							(LPVOID)&mouseState
+							);
+
+	if (SUCCEEDED(hr)) {
+		return true;
+	}
+
+	//	If Keyboard focus lost then reacquire
+	if (hr==DIERR_INPUTLOST) {
+
+		// Try again
+		if (AcquireMouse()) {
+
+			//-------------------------------------------------------
+			//						     Get Keyboard State
+			hr = mouseDevice->GetDeviceState(
+								sizeof(DIMOUSESTATE),
+								(LPVOID)&mouseState
+								);
+
+			if (SUCCEEDED(hr)) {
+				return true;
+			}
+		}
+	}
+	
+	// TODO: Temp Debug Text
+	std::cout << "Mouse Input Error: " << hr << std::endl;
+	return false;
+	
+
+}
 /////////////////////////////////////////////////////////////////////
 //							                  CInputSystem::IsKeyDown
 /////////////////////////////////////////////////////////////////////
@@ -299,5 +344,10 @@ bool CInputSystem::ReadAllDeviceStates() {
 		}
 	}
 
+	if (mouseDevice) {
+		if (!ReadMouseState()) {
+			return false;
+		}
+	}
 	return true; 
 }

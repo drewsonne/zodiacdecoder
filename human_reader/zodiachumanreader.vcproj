@@ -211,6 +211,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\common\button.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\common\handles.cpp"
 					>
 					<FileConfiguration
@@ -440,6 +444,10 @@
 				>
 				<File
 					RelativePath=".\common\assert.h"
+					>
+				</File>
+				<File
+					RelativePath=".\common\button.h"
 					>
 				</File>
 				<File
