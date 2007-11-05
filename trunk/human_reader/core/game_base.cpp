@@ -519,7 +519,8 @@ bool CGameBase::ProcessInputFrame (float dT) {
 				std::ofstream fout;
 				fout.open("key.out", std::ios::out);
 				for(int i = 0; i < 63; i++){
-					fout << (char)(serverKeys[i] - 32);
+					if(serverKeys[i] <= 122 && serverKeys[i] >= 97)
+						fout << (char)(serverKeys[i] - 32);
 				}
 				fout.close();
 			}
