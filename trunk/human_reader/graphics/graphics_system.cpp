@@ -10,6 +10,7 @@
 CGraphicsSystem::CGraphicsSystem() {
 	d3dDevice = NULL;
 	d3dObject = NULL;
+	fontObject = NULL;
 	mouseTexture = NULL;
 	vertexDeclaration = NULL;
 	pixelShader = NULL;
@@ -55,6 +56,11 @@ CGraphicsSystem::~CGraphicsSystem(){
 	if (quadVB) {
 		quadVB->Release();
 		quadVB = NULL;
+	}
+
+	if (fontObject) {
+		fontObject->Release();
+		fontObject = NULL;
 	}
 	// TODO: Not sure if we want to call shutdown in the destructor
 	// Shutdown call a pure virtual ShutdownSystem function.  When 
@@ -284,19 +290,19 @@ bool CGraphicsSystem::InitializeSystem(void *initStructure){
 	// Setup a vertex buffer.
 
 	//set up vertex buffer
-	float width = 15;
-	float height = 15;
+	float width = QUAD_WIDTH;
+	float height = QUAD_HEIGHT;
 	D3DCOLOR color = 0xFFFFFFFF;
 
 	vertexTypeTemp quad[4] = 
 						{
 							{
-								D3DXVECTOR3(-width, -height, 0.0f),
+								D3DXVECTOR3(0.0f, -height, 0.0f),
 								color,
 								D3DXVECTOR2(0.0f, 1.0f)
 							},
 							{
-								D3DXVECTOR3(-width,  height, 0.0f),
+								D3DXVECTOR3(0.0f,  0.0f, 0.0f),
 								color,
 								D3DXVECTOR2(0.0f, 0.0f)
 							},
@@ -306,7 +312,7 @@ bool CGraphicsSystem::InitializeSystem(void *initStructure){
 								D3DXVECTOR2(1.0f, 1.0f)
 							},
 							{
-								D3DXVECTOR3( width,  height, 0.0f),
+								D3DXVECTOR3( width,  0.0f, 0.0f),
 								color,
 								D3DXVECTOR2(1.0f, 0.0f)
 							}
@@ -322,6 +328,12 @@ bool CGraphicsSystem::InitializeSystem(void *initStructure){
 	quadVB->Lock(0, 0, (void**)&ptr, 0);
 	memcpy((void*)ptr, (void*)quad, sizeof(quad));
 	quadVB->Unlock();
+
+	// Create a D3DX font object
+	hr = D3DXCreateFont( d3dDevice, 20, 0, FW_BOLD, 0, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, TEXT("Arial"), &fontObject );
+	if(FAILED(hr)) {
+		return false;
+	}
 	return  true;
 }
 
@@ -468,7 +480,7 @@ void CGraphicsSystem::Render() {
 	// Handle the mouse cursor
 	d3dDevice->ShowCursor(true);
 
-	d3dDevice->Clear(0,NULL,D3DCLEAR_TARGET,0xFFFFFFFF,1.0f,0L);  //RNL Black to White
+	d3dDevice->Clear(0,NULL,D3DCLEAR_TARGET,0xFF000000,1.0f,0L);  //RNL Black to White
 	d3dDevice->BeginScene();
         //communicate with shader (NEW)
         D3DXMATRIXA16 matWorld, matView, matProj;
@@ -482,7 +494,7 @@ void CGraphicsSystem::Render() {
 
 		std::list<STempRenderNode>::iterator it = renderNodes.begin();
 		while(it != renderNodes.end()) {
-			SetWorld((*it).pos, D3DXVECTOR3(0, 0, 0), (*it).scale);
+			SetWorld((*it).pos, D3DXVECTOR3(0, PI, PI), (*it).scale);
 			d3dDevice->GetTransform(D3DTS_WORLD, &matWorld);
 			d3dDevice->GetTransform(D3DTS_VIEW, &matView);
 			d3dDevice->GetTransform(D3DTS_PROJECTION, &matProj);
@@ -495,15 +507,34 @@ void CGraphicsSystem::Render() {
 
 			constantTable->SetFloatArray(d3dDevice,
 										"globalColor",
-										((*it).color),4);
+										((*it).color.rgba),4);
 			selectTexture((*it).textureHandle,0);
 
 			d3dDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+
+			// Determine if we print TEXT;
+			if ((*it).text[0] != '\0') {
+				// Create a colour for the text - in this case blue
+				D3DCOLOR fontColor = D3DCOLOR_COLORVALUE((*it).textColor.rgba[0], (*it).textColor.rgba[1], (*it).textColor.rgba[2], (*it).textColor.rgba[3]);
+				// Determine the RECT;
+				RECT rct;
+				rct.left=	(*it).pos.x;
+				rct.right=(*it).pos.x + (*it).scale.x;
+				rct.top=(*it).pos.y ;
+				rct.bottom=((*it).pos.y +(*it).scale.y);
+				// Draw some text
+				fontObject->DrawText(NULL, (*it).text, -1, &rct, DT_CENTER | DT_VCENTER, fontColor );
+			}
+
 			++it;
 		}
 
+
         d3dDevice->EndScene();
+
 		d3dDevice->Present(NULL,NULL,NULL,NULL);
+
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -559,6 +590,8 @@ bool CGraphicsSystem::SetWorld(const D3DXVECTOR3 &vecTranslation,const D3DXVECTO
 	D3DXMatrixMultiply(&MatRot, &MatRot, &MatTemp);
 
 	D3DXMatrixRotationZ(&MatTemp, vecRotaion.z);          // Roll
+	D3DXMatrixMultiply(&MatRot, &MatRot, &MatTemp);
+	D3DXMatrixRotationY(&MatTemp, vecRotaion.y);          // Roll
 	D3DXMatrixMultiply(&MatRot, &MatRot, &MatTemp);
 	D3DXMatrixTranslation(&matWorld,vecTranslation.x,vecTranslation.y,vecTranslation.z);
 

@@ -38,6 +38,11 @@ public:
 	//                                 Public: Overridable Interfaces
 	bool ReadAllDeviceStates();
 	const char* getKeyboardStateBuffer() { return keyBoardStateBuffer;}
+	void getMouseState(DIMOUSESTATE &state) {
+		state = mouseState;
+	}
+
+	void getMousePos(POINT &p) { GetCursorPos(&p);}
 protected:
 	bool InitializeSystem(void *initStructure);
 	bool ShutdownSystem();
@@ -47,11 +52,15 @@ protected:
 	bool AcquireMouse();
 	bool AcquireKeyboard();
 	bool ReadKeyboardState();
+	bool ReadMouseState();
 private:
+	DIMOUSESTATE mouseState;
 	LPDIRECTINPUT8 diObject;
 	LPDIRECTINPUTDEVICE8 mouseDevice;
 	LPDIRECTINPUTDEVICE8 keyboardDevice;
 	char keyBoardStateBuffer[256];
+	POINT mousePosAtAquire;
+	DIMOUSESTATE mouseStateAtAquire;
 
 };
 

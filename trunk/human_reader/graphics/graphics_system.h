@@ -15,7 +15,9 @@
 #include <list>
 #include <d3dx9.h>
 
-
+#define QUAD_WIDTH 1
+#define QUAD_HEIGHT 1
+#define PI 3.14159265
 class CTextureManager;
 struct STextureResource;
 struct vertexTypeTemp {
@@ -24,16 +26,44 @@ struct vertexTypeTemp {
 	D3DXVECTOR2 tex1;
 };
 
+struct SRenderNodeColor {
+	float rgba[4];
+};
+
+const SRenderNodeColor kBlackColor = {0.0f, 0.0f, 0.0f, 1.0f};
+const SRenderNodeColor kWhiteColor = {1.0f, 1.0f, 1.0f, 1.0f};
+const SRenderNodeColor kCodedCipherColor = kWhiteColor;
+const SRenderNodeColor kMovingWordColor = {0.0f, 0.0f, 1.0f, 1.0f};
+const SRenderNodeColor kDecodedCipherColor = {0.0f, 1.0f, 0.0f, 1.0f};
+const SRenderNodeColor kConflictingCipherColor = {1.0f, 0.0f, 0.0f, 1.0f};
+const SRenderNodeColor kTypedCharacterColor = {0.8f, 0.8f, 0.8f, 1.0f};
+const SRenderNodeColor kTypedCursorCharacterColor = {1.0f, 0.5f, 0.5f, 1.0f};
+const SRenderNodeColor kButtonColor = kWhiteColor;
+const SRenderNodeColor kHoveredButtonColor = {1.0f, 0.9f, 0.9f, 1.0f};
+const SRenderNodeColor kDownButtonColor = {1.0f, 0.8f, 0.8f, 1.0f};
+const SRenderNodeColor kDisabledButtonColor = {0.8f, 0.8f, 0.8f, 1.0f};
+const SRenderNodeColor kBorderColor = {0.8f, 0.8f, 0.8f, 1.0f};
+const SRenderNodeColor kLogoColor = kWhiteColor;
+const SRenderNodeColor kWordListCharacterColor = {0.0f, 0.7f, 0.0f, 1.0f};
+const SRenderNodeColor kWordListSelectedCharacterColor = {0.0f, 1.0f, 0.0f, 1.0f};
+const SRenderNodeColor kWordListSeperatorLineColor = {0.1f, 0.1f, 0.1f, 1.0f};
+
+#define RENDERNODE_MAX_TEXT 256
 struct STempRenderNode {
 	STempRenderNode() {
 		pos = D3DXVECTOR3(0,0,0);
 		scale = D3DXVECTOR3(1,1,1);
+		text[0] = '\0';
+		textColor = kBlackColor;
 	}
 	D3DXVECTOR3 pos;
 	D3DXVECTOR3 scale;
-	float color[4];
+	SRenderNodeColor color;
+	SRenderNodeColor textColor;
+	char text[RENDERNODE_MAX_TEXT];
 	TextureHandle textureHandle;
 };
+
 
 class CGraphicsSystem : public CSystemBase {
 public:
@@ -105,9 +135,11 @@ public:
 	void clearRenderNodes() {renderNodes.clear();}
 	void addRenderNode(const STempRenderNode& node) {renderNodes.push_back(node);}
 	string assetPath, texturePath, stockTexturePath;
+	void getClientRect(RECT &rct) {GetWindowRect(screenState.windowHandle, &rct);}
 protected:
 	IDirect3DDevice9*		d3dDevice;
 	IDirect3D9*				d3dObject;
+	ID3DXFont *fontObject;
 	virtual bool InitializeSystem(void *initStructure);
 	virtual bool ShutdownSystem();
 	bool SetDeviceParameters();

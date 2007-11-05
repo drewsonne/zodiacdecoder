@@ -296,6 +296,7 @@ bool CGameBase::InitializeGame() {
 		return false;
 	}
 	miscTextures.push_back(miscHandle);
+	miscWhiteTextureIndex = miscTextures.size() - 1;
 
 	std::ifstream inFile("340index.txt", std::ios_base::in);
 	if(inFile.fail()) {
@@ -325,6 +326,11 @@ bool CGameBase::InitializeGame() {
 
 	InitializeDictionary(); //RNL
 
+	buttons.Init(graphics);
+	ScrollUpButtonId = buttons.addButton(CButton(kScrollBarLeft,kScrollBarTop,kScrollBarWidth,kScrollBarWidth,eButton_UpArrow,NULL));
+	ScrollDownButtonId = buttons.addButton(CButton(kScrollBarLeft,kScrollBarTop + kScrollBarHeight - kScrollBarWidth,kScrollBarWidth,kScrollBarWidth,eButton_DownArrow,NULL));
+	// Position Exit Button Below the scroll bar
+	ExitButtonId = buttons.addButton(CButton(kWordListLeft,kScrollBarTop + kScrollBarHeight,100,30,eButton_Generic,"Exit"));
 	return true;
 }
 
@@ -362,6 +368,33 @@ bool CGameBase::ProcessGameFrame (float dT) {
 //							CGameBase::ProcessGameFrame
 /////////////////////////////////////////////////////////////////////
 bool CGameBase::ProcessInputFrame (float dT) {
+
+	// BIG FUCKING KLUDGE.
+	// Figure out our mouse position within our drawing area.
+	DIMOUSESTATE mouseState;
+	input.getMouseState(mouseState);
+	int x = mouseState.lX;
+	int y = mouseState.lY;
+	POINT p;
+	input.getMousePos(p);
+	RECT r;
+	graphics.getClientRect(r);
+	int windowsBorder = 5;
+	int windowsMenuBarHieght = 23;
+	p.x -= (r.left + windowsBorder);
+	p.y -= (r.top + windowsMenuBarHieght);
+	// The window menu and border actually take up some of our area.  Our area gets 'scruntched' and we have to figure out that ratio to
+	// get accurate mouse position over our drawn buttons.
+	float actualDrawWidthRatio = (float)(graphics.screenState.windowWidth - windowsBorder * 2) / (float)graphics.screenState.windowWidth;
+	float actualDrawHeightRatio = (float)(graphics.screenState.windowHeight - (windowsMenuBarHieght + windowsBorder)) / (float)graphics.screenState.windowHeight ;
+	IndexType buttonPressed = buttons.processButtons(p.x / actualDrawWidthRatio, p.y / actualDrawHeightRatio, mouseState.rgbButtons[0]);
+
+	if (buttonPressed != 0) {
+		if (buttonPressed == ExitButtonId) {
+			// exit the app;
+			return false;
+		}
+	}
 	static bool keyDown = false;
 
 	const char* buffer = input.getKeyboardStateBuffer();
@@ -387,6 +420,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 		return false;
 	}
 
+	// Full Screen seems broken
 	/*if (input.IsKeyDown(DIK_F1)) {
 		return graphics.ToggleFullscreen();
 	}*/
@@ -694,11 +728,88 @@ bool CGameBase::ProcessInputFrame (float dT) {
 }
 
 /////////////////////////////////////////////////////////////////////
+//							CGameBase::DrawBorder
+/////////////////////////////////////////////////////////////////////
+// A helper function to draw borders around things.
+void CGameBase::DrawBorder(float left, float top, float width, float height, float borderWidth, SRenderNodeColor color) {
+	STempRenderNode borderNode;
+
+	// Calculate the edge width and heights
+	const float vEdgeWidth = borderWidth;
+	const float vEdgeHeight = height - borderWidth * 2;
+	const float hEdgeWidth = width - borderWidth * 2;
+	const float hEdgeHeight = borderWidth;
+
+	//--------------------------------------------------------
+	// Do the four corners
+	borderNode.scale = D3DXVECTOR3(borderWidth,borderWidth,1);
+	borderNode.color = color;
+
+	//Top Left
+	borderNode.textureHandle = borderTextures[0];
+	borderNode.pos = D3DXVECTOR3(left,top,0);
+	graphics.addRenderNode(borderNode);
+
+	//Top Right
+	borderNode.textureHandle = borderTextures[2];
+	borderNode.pos = D3DXVECTOR3(left + hEdgeWidth + borderWidth,top,0);
+	graphics.addRenderNode(borderNode);
+
+	//Bottom Left
+	borderNode.textureHandle = borderTextures[5];
+	borderNode.pos = D3DXVECTOR3(left, top + vEdgeHeight + borderWidth, 0);
+	graphics.addRenderNode(borderNode);
+
+	//Bottom Right
+	borderNode.textureHandle = borderTextures[7];
+	borderNode.pos = D3DXVECTOR3(left + hEdgeWidth + borderWidth, top + vEdgeHeight + borderWidth, 0);
+	graphics.addRenderNode(borderNode);
+
+	//--------------------------------------------------------
+	// Do the edge rails
+
+	borderNode.scale = D3DXVECTOR3(hEdgeWidth,borderWidth,1);
+	// Top Rail
+	borderNode.textureHandle = borderTextures[1];
+	borderNode.pos = D3DXVECTOR3(left + borderWidth,top,0);
+	graphics.addRenderNode(borderNode);
+
+	// Bottom Rail
+	borderNode.textureHandle = borderTextures[6];
+	borderNode.pos = D3DXVECTOR3(left + borderWidth,top + vEdgeHeight + borderWidth,0);
+	graphics.addRenderNode(borderNode);
+
+	borderNode.scale = D3DXVECTOR3(borderWidth,vEdgeHeight,1);
+	// Left Rail
+	borderNode.textureHandle = borderTextures[3];
+	borderNode.pos = D3DXVECTOR3(left,top + borderWidth,0);
+	graphics.addRenderNode(borderNode);
+
+	// Right Rail
+	borderNode.textureHandle = borderTextures[4];
+	borderNode.pos = D3DXVECTOR3(left + hEdgeWidth + borderWidth,top + borderWidth,0);
+	graphics.addRenderNode(borderNode);
+}
+/////////////////////////////////////////////////////////////////////
+//							CGameBase::DrawColoredQuad
+/////////////////////////////////////////////////////////////////////
+// A helper function to colored rectangles
+void CGameBase::DrawColoredQuad(float left, float top, float width, float height, SRenderNodeColor color) {
+		STempRenderNode rectangleNode;
+		rectangleNode.color = color;
+		rectangleNode.pos = D3DXVECTOR3(left, top, 0);
+		rectangleNode.scale = D3DXVECTOR3(width,height,1);
+		rectangleNode.textureHandle = miscTextures[miscWhiteTextureIndex];
+		graphics.addRenderNode(rectangleNode);
+}
+/////////////////////////////////////////////////////////////////////
 //							CGameBase::ProcessRenderState
 /////////////////////////////////////////////////////////////////////
 bool CGameBase::ProcessRenderState () {
+
+
 	graphics.SetWorld(D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(0, 0, 0), D3DXVECTOR3(1, 1, 1));
-	graphics.SetCamera(D3DXVECTOR3(512, 384, -10), D3DXVECTOR3(512, 384, 0), D3DXVECTOR3(0, 1, 0));
+	graphics.SetCamera(D3DXVECTOR3(512, 384, 10), D3DXVECTOR3(512, 384, 0), D3DXVECTOR3(0, -1, 0));
 	graphics.SetProjection();
 
 	graphics.clearRenderNodes();
@@ -706,193 +817,57 @@ bool CGameBase::ProcessRenderState () {
 	CalculateKeyMap();
 
 	//RNL Border Placement
-	STempRenderNode borderNode;
-	borderNode.scale = D3DXVECTOR3(1,1,1);
-	borderNode.color[0] = 0.5f;
-	borderNode.color[1] = 0.5f;	
-	borderNode.color[2] = 0.5f;
-	borderNode.color[3] = 1.0f;
-	borderNode.textureHandle = borderTextures[0];
-	borderNode.pos = D3DXVECTOR3(15,753,0);
-	graphics.addRenderNode(borderNode);
-	borderNode.textureHandle = borderTextures[2];
-	borderNode.pos = D3DXVECTOR3(559,753,0);
-	graphics.addRenderNode(borderNode);
-	borderNode.textureHandle = borderTextures[5];
-	borderNode.pos = D3DXVECTOR3(15,119,0);
-	graphics.addRenderNode(borderNode);
-	borderNode.textureHandle = borderTextures[7];
-	borderNode.pos = D3DXVECTOR3(559,119,0);
-	graphics.addRenderNode(borderNode);
-	borderNode.textureHandle = borderTextures[1];
-	borderNode.pos = D3DXVECTOR3(287,753,0);
-	borderNode.scale = D3DXVECTOR3(17.15,1,1);
-	graphics.addRenderNode(borderNode);
-	borderNode.textureHandle = borderTextures[3];
-	borderNode.pos = D3DXVECTOR3(15,436,0);
-	borderNode.scale = D3DXVECTOR3(1,20.15,1);
-	graphics.addRenderNode(borderNode);
-	borderNode.textureHandle = borderTextures[4];
-	borderNode.pos = D3DXVECTOR3(559,436,0);
-	borderNode.scale = D3DXVECTOR3(1,20.15,1);
-	graphics.addRenderNode(borderNode);
-	borderNode.textureHandle = borderTextures[6];
-	borderNode.pos = D3DXVECTOR3(287,119,0);
-	borderNode.scale = D3DXVECTOR3(17.15,1,1);
-	graphics.addRenderNode(borderNode);
+	DrawBorder(0,0,cipherBorderWidthTotal,cipherBorderHeightTotal,borderWidth, kBorderColor);
 
-	//RNL Logo Placement
-	STempRenderNode logoNode;
-	logoNode.scale = D3DXVECTOR3(12,12,12);
-	logoNode.color[0] = 0.0f;
-	logoNode.color[1] = 0.0f;	
-	logoNode.color[2] = 0.0f;
-	logoNode.color[3] = 1.0f;
-	logoNode.textureHandle = miscTextures[0];
-	logoNode.pos = D3DXVECTOR3(790,575,0);
-	graphics.addRenderNode(logoNode);
-
-	//RNL Underline Init
-	STempRenderNode underlineNode;
-	underlineNode.scale = D3DXVECTOR3(1,0.1,1);
-	underlineNode.color[0] = 0.7f;
-	underlineNode.color[1] = 0.7f;	
-	underlineNode.color[2] = 0.0f;
-	underlineNode.color[3] = 1.0f;
-	underlineNode.textureHandle = miscTextures[1];
-	bool underline = false;
-
-	for (int i = 0; i < 20; i++) {
-		for (int k = 0; k < 17; k++) {
+	for (int i = 0; i < cipherHeightInCharacters; i++) {
+		for (int k = 0; k < cipherWidthInCharacters; k++) {
 			STempRenderNode tempNode;
-			tempNode.scale = D3DXVECTOR3(1,1,1);
-			int cipherPosition = (i*17) + k;
-			int cipherCharacter = cipherText[(i*17) + k];
+			tempNode.scale = D3DXVECTOR3(cipherCharacterWidth,cipherCharacterHeight,1);
+			int cipherPosition = (i*cipherWidthInCharacters) + k;
+			int cipherCharacter = cipherText[(i*cipherWidthInCharacters) + k];
 			if (keyMap[cipherCharacter] >= 0 && keyMap[cipherCharacter] <= 35) {
 				tempNode.textureHandle = alphaTextures[keyMap[cipherCharacter]];
 				if (conflictingKeyMap[cipherCharacter] != -1) {
-					tempNode.color[0] = 0.8f;
-					tempNode.color[1] = 0.0f;	
-					tempNode.color[2] = 0.0f;
-					tempNode.color[3] = 1.0f;
-					underlineNode.scale = D3DXVECTOR3(0.7,0.05,1);
-					underlineNode.color[1] = 0.0f;
-					underline = true; //RNL Underline flag
+					tempNode.color= kConflictingCipherColor;
 				} else {
-					tempNode.color[0] = 0.0f;
-					tempNode.color[1] = 0.0f;	
-					tempNode.color[2] = 0.8f;
-					tempNode.color[3] = 1.0f;
+					tempNode.color = kDecodedCipherColor;
 				}
 			} else if (currentKeyMap[cipherCharacter] >= 0 && currentKeyMap[cipherCharacter] <= 35) {
 				tempNode.textureHandle = alphaTextures[currentKeyMap[cipherCharacter]];
 				if (conflictingKeyMap[cipherCharacter] != -1) {
-					tempNode.color[0] = 0.8f;
-					tempNode.color[1] = 0.0f;	
-					tempNode.color[2] = 0.0f;
-					tempNode.color[3] = 1.0f;
-					underlineNode.scale = D3DXVECTOR3(0.7,0.05,1);
-					underlineNode.color[1] = 0.0f;
-					underline = true; //RNL Underline flag
+					tempNode.color = kConflictingCipherColor;
 				} else if (cipherPosition >= wordPos[selectionPos] && cipherPosition < wordPos[selectionPos] + wordList[selectionPos].size()) {
 					//RNL fixed a small bug in the above condition
-					tempNode.color[0] = 0.7f;
-					tempNode.color[1] = 0.7f;	
-					tempNode.color[2] = 0.0f;
-					tempNode.color[3] = 1.0f;
-					tempNode.scale = D3DXVECTOR3(1.25,1.25,1);
-					underlineNode.scale = D3DXVECTOR3(1,0.1,1);
-					underlineNode.color[1] = 0.7f;
-					underline = true; //RNL Underline flag
+					tempNode.color = kMovingWordColor;
+					tempNode.scale = D3DXVECTOR3(cipherCharacterWidth,cipherCharacterHeight,1);
 					
 				} else {
-					tempNode.color[0] = 0.0f;
-					tempNode.color[1] = 0.8f;	
-					tempNode.color[2] = 0.0f;
-					tempNode.color[3] = 1.0f;
-					tempNode.scale = D3DXVECTOR3(1.1,1.1,1);
+					tempNode.color = kDecodedCipherColor;
+					tempNode.scale = D3DXVECTOR3(cipherCharacterWidth * 1.1,cipherCharacterHeight * 1.1,1);
 				}
 			} else {
 				tempNode.textureHandle = cipherTextures[cipherCharacter];
-				tempNode.color[0] = 0.0f;
-				tempNode.color[1] = 0.0f;	
-				tempNode.color[2] = 0.0f;
-				tempNode.color[3] = 1.0f;
+				tempNode.color = kCodedCipherColor;
 			}
-			tempNode.pos = D3DXVECTOR3(47 + k * 30, 719 - i * 30, 0);
+			tempNode.pos = D3DXVECTOR3(borderWidth + k * cipherCharacterWidth, borderWidth + i * cipherCharacterHeight, 0);
 
 			graphics.addRenderNode(tempNode);
 
-			//RNL Underline Placement
-			if(underline){
-				underlineNode.pos = D3DXVECTOR3(47 + k * 30, 705 - i * 30, 0);
-				underline = false;
-				graphics.addRenderNode(underlineNode);
-			}
 		}
 	}
 
-	//RNL Typed Text borders
-	STempRenderNode textOutlineNode;
-
-	textOutlineNode.textureHandle = miscTextures[1];
-
-	//Start with drop shadows
-	textOutlineNode.color[0] = 0.7f;
-	textOutlineNode.color[1] = 0.7f;	
-	textOutlineNode.color[2] = 0.7f;
-	textOutlineNode.color[3] = 1.0f;
-
-	textOutlineNode.scale = D3DXVECTOR3(13.5,0.1,1);
-	textOutlineNode.pos = D3DXVECTOR3(789, 583, 0);
-	graphics.addRenderNode(textOutlineNode);
-	textOutlineNode.pos = D3DXVECTOR3(789, 113, 0);
-	graphics.addRenderNode(textOutlineNode);
-	textOutlineNode.scale = D3DXVECTOR3(0.1,1.1,1);
-	textOutlineNode.pos = D3DXVECTOR3(993,598,0);
-	graphics.addRenderNode(textOutlineNode);
-	textOutlineNode.scale = D3DXVECTOR3(0.1,15.1,1);
-	textOutlineNode.pos = D3DXVECTOR3(993,338,0);
-	graphics.addRenderNode(textOutlineNode);
-
-	textOutlineNode.color[0] = 0.0f;
-	textOutlineNode.color[1] = 0.0f;	
-	textOutlineNode.color[2] = 0.0f;
-	textOutlineNode.color[3] = 1.0f;
-
-	textOutlineNode.scale = D3DXVECTOR3(13.5,0.1,1);
-	textOutlineNode.pos = D3DXVECTOR3(788, 615, 0);
-	graphics.addRenderNode(textOutlineNode);
-	textOutlineNode.pos = D3DXVECTOR3(788, 585, 0);
-	graphics.addRenderNode(textOutlineNode);
-	textOutlineNode.pos = D3DXVECTOR3(788, 565, 0);
-	graphics.addRenderNode(textOutlineNode);
-	textOutlineNode.pos = D3DXVECTOR3(788, 115, 0);
-	graphics.addRenderNode(textOutlineNode);
-
-	textOutlineNode.scale = D3DXVECTOR3(0.1,1.1,1);
-	textOutlineNode.pos = D3DXVECTOR3(585,600,0);
-	graphics.addRenderNode(textOutlineNode);
-	textOutlineNode.pos = D3DXVECTOR3(991,600,0);
-	graphics.addRenderNode(textOutlineNode);
-
-	textOutlineNode.scale = D3DXVECTOR3(0.1,15.1,1);
-	textOutlineNode.pos = D3DXVECTOR3(585,340,0);
-	graphics.addRenderNode(textOutlineNode);
-	textOutlineNode.pos = D3DXVECTOR3(991,340,0);
-	graphics.addRenderNode(textOutlineNode);
-
+	DrawBorder(cipherBorderWidthTotal, 0, sideBarWidth, typedCharacterHeight + typedBufferPadHeight, borderWidth, kBorderColor);
+	const float kTypingLeft = cipherBorderWidthTotal + (typedBufferPadHeight/ 2);
+	const float kTypingTop = (typedBufferPadHeight/ 2);
 
 	int bufferPos = 0;
 	int bufferChar = typingBuffer[bufferPos];
 	while(bufferChar >= 0 && bufferChar <= 35 && bufferPos < MAX_TYPING_BUFFER) {
 		STempRenderNode tempNode;
 		tempNode.textureHandle = alphaTextures[bufferChar];
-		tempNode.pos = D3DXVECTOR3(600 + bufferPos * 25, 600, 0);
-		tempNode.color[0] = 0.2f;
-		tempNode.color[1] = 0.2f;	
-		tempNode.color[2] = 0.2f;
-		tempNode.color[3] = 1.0f;
+		tempNode.pos = D3DXVECTOR3(kTypingLeft + bufferPos * typedCharacterWidth, kTypingTop, 0);
+		tempNode.scale = D3DXVECTOR3(typedCharacterWidth, typedCharacterHeight, 1);
+		tempNode.color = kTypedCharacterColor;
 		graphics.addRenderNode(tempNode);	
 		++bufferPos;
 		if (bufferPos >= MAX_TYPING_BUFFER) {
@@ -902,43 +877,35 @@ bool CGameBase::ProcessRenderState () {
 	}
 
 	underlinecounter++;
-	if(bufferPos < MAX_TYPING_BUFFER - 1 && underlinecounter < 30){
+	if(bufferPos < MAX_TYPING_BUFFER - 1 && underlinecounter < 15){
 		//RNL fancy flashing underline
-		STempRenderNode flashyNode;
-		flashyNode.color[0] = 0.2f;
-		flashyNode.color[1] = 0.2f;	
-		flashyNode.color[2] = 0.2f;
-		flashyNode.color[3] = 1.0f;
-		flashyNode.scale = D3DXVECTOR3(0.8,0.1,1);
-		flashyNode.textureHandle = miscTextures[1];
-		flashyNode.pos = D3DXVECTOR3(600 + bufferPos * 25, 588, 0);
-		graphics.addRenderNode(flashyNode);
+		DrawColoredQuad( kTypingLeft + bufferPos * typedCharacterWidth, kTypingTop + typedCharacterWidth , typedCharacterWidth, 2, kTypedCursorCharacterColor);
 	}
-	if(underlinecounter >= 60){
+	if(underlinecounter >= 30){
 		underlinecounter = 0;
 	}
+
 //RNL changed this to display two different word lists depending on focus
+	DrawBorder (kWordListLeft, kWordListTop, kWordListWidth, kWordListHeight, borderWidth, kBorderColor);
+
 	if(focus != FOCUS_RANDOM){
 		std::vector<std::vector<int> >::iterator it = wordList.begin();
 		int count = 0;
 		while (it != wordList.end()) {
 			for (int i = 0; i < (*it).size(); i++) {
 				STempRenderNode tempNode;
+				tempNode.scale = D3DXVECTOR3(typedCharacterWidth, typedCharacterHeight, 1);
 				tempNode.textureHandle = alphaTextures[(*it)[i]];
-				tempNode.pos = D3DXVECTOR3(600 + i * 25, 550 - count * 30, 0);
+				tempNode.pos = D3DXVECTOR3(kWordListLeft + i * typedCharacterWidth, kWordListTop + count * kWordListEntryHeight, 0);
 				if (selectionPos == count) {
-					tempNode.color[0] = 0.0f;
-					tempNode.color[1] = 0.7f;	
-					tempNode.color[2] = 0.0f;
-					tempNode.color[3] = 1.0f;
+					tempNode.color = kWordListSelectedCharacterColor;
 				} else {
-					tempNode.color[0] = 0.3f;
-					tempNode.color[1] = 0.3f;	
-					tempNode.color[2] = 0.3f;
-					tempNode.color[3] = 1.0f;
+					tempNode.color = kWordListCharacterColor;
 				}
 				graphics.addRenderNode(tempNode);			
 			}
+			// Draw A line seperating entries
+			DrawColoredQuad( kWordListLeft + borderWidth, ( kWordListTop + count * kWordListEntryHeight) + typedCharacterHeight , kWordListWidth - borderWidth * 2, 2, kWordListSeperatorLineColor);
 			++count;
 			++it;
 		}
@@ -950,31 +917,27 @@ bool CGameBase::ProcessRenderState () {
 			while (it != keyWordList.end()) {
 				for (int i = 0; i < (*it).size(); i++) {
 					STempRenderNode tempNode;
+					tempNode.scale = D3DXVECTOR3(typedCharacterWidth, typedCharacterHeight, 1);
 					tempNode.textureHandle = alphaTextures[(*it)[i]];
-					tempNode.pos = D3DXVECTOR3(600 + i * 25, 550 - count * 30, 0);
-					tempNode.color[0] = 0.0f;
-					tempNode.color[1] = 0.7f;	
-					tempNode.color[2] = 0.0f;
-					tempNode.color[3] = 1.0f;
+					tempNode.pos = D3DXVECTOR3(kWordListLeft + i * typedCharacterWidth, kWordListTop + count * 30, 0);
+					tempNode.color = kWordListSelectedCharacterColor;
 					graphics.addRenderNode(tempNode);			
 				}
+				DrawColoredQuad( kWordListLeft + borderWidth, ( kWordListTop + count * kWordListEntryHeight) + typedCharacterHeight , kWordListWidth - borderWidth * 2, 2, kWordListSeperatorLineColor);
 				++count;
 				++it;
 			}
 #endif
 	}
 
-
+	
 	//RNL Cipher Image Placement
 	for(int i=0;i<63;i++){
 		STempRenderNode tempNode;
 		tempNode.textureHandle = cipherTextures[i];
-		tempNode.color[0] = 0.0f;
-		tempNode.color[1] = 0.0f;	
-		tempNode.color[2] = 0.0f;
-		tempNode.color[3] = 1.0f;
-		tempNode.pos = D3DXVECTOR3(16 + i * 16, 50, 0);
-		tempNode.scale = D3DXVECTOR3(.6, .6, 1);
+		tempNode.color = kCodedCipherColor;
+		tempNode.pos = D3DXVECTOR3((cipherImageWidth  / 2.0f)+ i * cipherImageWidth, graphics.screenState.screenHeight - cipherImageHeight * 2, 0);
+		tempNode.scale = D3DXVECTOR3(cipherImageWidth, cipherImageHeight, 1);
 		graphics.addRenderNode(tempNode);
 	}
 
@@ -982,25 +945,30 @@ bool CGameBase::ProcessRenderState () {
 		if (keyMap[i] != -1) {
 			STempRenderNode tempNode;
 			tempNode.textureHandle = alphaTextures[keyMap[i]];
-			tempNode.color[0] = 0.0f;
-			tempNode.color[1] = 0.0f;	
-			tempNode.color[2] = 0.7f;
-			tempNode.color[3] = 1.0f;
-			tempNode.pos = D3DXVECTOR3(16 + i * 16, 30, 0);
-			tempNode.scale = D3DXVECTOR3(.6, .6, 1);  //RNL Scaled down
+			tempNode.color = kDecodedCipherColor;
+			tempNode.pos = D3DXVECTOR3((cipherImageWidth  / 2.0f)+ i * cipherImageWidth, graphics.screenState.screenHeight - cipherImageHeight, 0);
+			tempNode.scale = D3DXVECTOR3(cipherImageWidth, cipherImageHeight, 1);  //RNL Scaled down
 			graphics.addRenderNode(tempNode);
 		} else if (currentKeyMap[i] != -1) {
 			STempRenderNode tempNode;
 			tempNode.textureHandle = alphaTextures[currentKeyMap[i]];
-			tempNode.color[0] = 0.0f;
-			tempNode.color[1] = 0.7f;	
-			tempNode.color[2] = 0.0f;
-			tempNode.color[3] = 1.0f;
-			tempNode.pos = D3DXVECTOR3(16 + i * 16, 30, 0);
-			tempNode.scale = D3DXVECTOR3(.6, .6, 1);  //RNL Scaled down
+			tempNode.color = kTypedCharacterColor;
+			tempNode.pos = D3DXVECTOR3((cipherImageWidth  / 2.0f)+ i * cipherImageWidth, graphics.screenState.screenHeight - cipherImageHeight, 0);
+			tempNode.scale = D3DXVECTOR3(cipherImageWidth, cipherImageHeight, 1);  //RNL Scaled down
 			graphics.addRenderNode(tempNode);
 		}
 	}
+
+	buttons.renderButtons(graphics);
+	char fileName[256];
+	sprintf_s(fileName,256,"%s/stock/white.png",graphics.texturePath.c_str());
+	TextureHandle whiteTexture = graphics.getTexture(fileName);
+	STempRenderNode tempNode;	
+	tempNode.color = kWhiteColor;
+	tempNode.pos = D3DXVECTOR3(100,100,0);
+	tempNode.scale = D3DXVECTOR3(5,3,1);
+	tempNode.textureHandle = whiteTexture;
+
 	return true;
 }
 

@@ -117,4 +117,9 @@
 
 		<Texture name="stock/Logo.png"/>
 		<Texture name="stock/white.png"/>
+		<Texture name="stock/black.png"/>
+		
+		<Texture name="buttons/button.png"/>
+		<Texture name="buttons/buttonDownArrow.png"/>
+		<Texture name="buttons/buttonUpArrow.png"/>	
 </Textures>

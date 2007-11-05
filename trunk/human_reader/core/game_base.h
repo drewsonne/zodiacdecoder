@@ -14,6 +14,7 @@
 #include "string.h"
 #include "hash_table.h" //RNL
 #include <vector>
+#include "button.h"
 
 enum EControlFocus {
 	FOCUS_TYPING,
@@ -26,6 +27,36 @@ enum EControlFocus {
 // projects would derive a game class from CGameBase
 #define MAX_TYPING_BUFFER 17
 #define MAX_WORD_LIST_LENGTH 15 //RNL
+
+const float borderWidth = 5.0f;
+const float cipherCharacterWidth = 30.0f;
+const float cipherCharacterHeight = 30.0f;
+const float typedCharacterWidth = 25.0f;
+const float typedCharacterHeight = 30.0f;
+const float typedBufferPadHeight = 10.0f;
+const int cipherWidthInCharacters = 17;
+const int cipherHeightInCharacters = 20;
+
+const int cipherBorderWidthTotal = 2 * borderWidth + cipherWidthInCharacters * cipherCharacterWidth;
+const int cipherBorderHeightTotal = 2 * borderWidth + cipherHeightInCharacters * cipherCharacterHeight;
+const int dropShadowOffset = 10;
+const float sideBarWidth = 1024 - (cipherBorderWidthTotal);
+
+const float kScrollBarWidth = 20.0f;
+const float kScrollBarTop  = typedCharacterHeight + typedBufferPadHeight;
+const float kWordListLeft = cipherBorderWidthTotal;
+const float kWordListTop = typedCharacterHeight + typedBufferPadHeight;
+const float kWordListEntryHeight = typedCharacterHeight;
+const float kWordListViewableCount = 19;
+const float kWordListWidth = sideBarWidth - kScrollBarWidth;
+const float kWordListHeight= kWordListViewableCount * kWordListEntryHeight;
+
+const float kScrollBarLeft = kWordListLeft + kWordListWidth;
+const float kScrollBarHeight = kWordListHeight;
+
+const float cipherImageWidth = 16.0f;
+const float cipherImageHeight = 20.0f;
+
 class CGameBase : public CSystemBase
 {
 public:
@@ -138,8 +169,15 @@ protected:
 	void CopyKeyWordToKeyWordList(string s); //RNL
 	CHashTable<int> Dictionary;
 	void InitializeDictionary();
+	IndexType ScrollUpButtonId;
+	IndexType ScrollDownButtonId;
+	IndexType ExitButtonId;
 private:
+	CButtonManager buttons;
+	void DrawBorder(float left, float top, float width, float height, float borderWidth, SRenderNodeColor color);
+	void DrawColoredQuad(float left, float top, float width, float height, SRenderNodeColor color);
 
+	int miscWhiteTextureIndex;
 };
 
 #endif
