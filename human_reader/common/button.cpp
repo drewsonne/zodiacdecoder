@@ -64,9 +64,9 @@ bool CButtonManager::removeButton(IndexType id) {
 	return found;
 }
 
-IndexType CButtonManager::processButtons(long x, long y, int buttonDown) {
+int CButtonManager::processButtons(long x, long y, int buttonDown) { //RNL Fixed small error, 0 is a button ID
 
-	IndexType clickedId = 0;
+	int clickedId = -1; 
 
 	// Buttons should only have a few possible states
 	// HOVER
@@ -81,7 +81,7 @@ IndexType CButtonManager::processButtons(long x, long y, int buttonDown) {
 				(*it).state |= BUTTON_HOVER;
 				if (buttonDown) {
 					(*it).state |= BUTTON_DOWN;	
-					clickedId = (*it).id;
+					clickedId = (int)((*it).id);
 				} 
 			}
 		} else {
