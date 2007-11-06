@@ -259,10 +259,6 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath=".\common\logging.cpp"
-					>
-				</File>
-				<File
 					RelativePath=".\common\string_base.cpp"
 					>
 					<FileConfiguration
@@ -460,10 +456,6 @@
 				</File>
 				<File
 					RelativePath=".\common\index_manager.h"
-					>
-				</File>
-				<File
-					RelativePath=".\common\logging.h"
 					>
 				</File>
 				<File

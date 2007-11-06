@@ -71,6 +71,7 @@ CGameBase::CGameBase() {
 	miscTextures.clear(); //RNL
 	typingBuffer[0] = -1;
 	currentTypingPos = 0;
+	currentScrollPos = 0;
 	focus = FOCUS_TYPING;
 	wordList.clear();
 	wordPos.clear();
@@ -327,6 +328,7 @@ bool CGameBase::InitializeGame() {
 	InitializeDictionary(); //RNL
 
 	buttons.Init(graphics);
+
 	ScrollUpButtonId = buttons.addButton(CButton(kScrollBarLeft,kScrollBarTop,kScrollBarWidth,kScrollBarWidth,eButton_UpArrow,NULL));
 	ScrollDownButtonId = buttons.addButton(CButton(kScrollBarLeft,kScrollBarTop + kScrollBarHeight - kScrollBarWidth,kScrollBarWidth,kScrollBarWidth,eButton_DownArrow,NULL));
 	// Position Exit Button Below the scroll bar
@@ -387,14 +389,51 @@ bool CGameBase::ProcessInputFrame (float dT) {
 	// get accurate mouse position over our drawn buttons.
 	float actualDrawWidthRatio = (float)(graphics.screenState.windowWidth - windowsBorder * 2) / (float)graphics.screenState.windowWidth;
 	float actualDrawHeightRatio = (float)(graphics.screenState.windowHeight - (windowsMenuBarHieght + windowsBorder)) / (float)graphics.screenState.windowHeight ;
-	IndexType buttonPressed = buttons.processButtons(p.x / actualDrawWidthRatio, p.y / actualDrawHeightRatio, mouseState.rgbButtons[0]);
+	int buttonPressed = buttons.processButtons(p.x / actualDrawWidthRatio, p.y / actualDrawHeightRatio, mouseState.rgbButtons[0]);
 
-	if (buttonPressed != 0) {
+	if (buttonPressed != -1) { //RNL Fixed small error, 0 is a button ID
 		if (buttonPressed == ExitButtonId) {
 			// exit the app;
 			return false;
 		}
+		else if (buttonPressed == ScrollUpButtonId){ //RNL
+			// scroll up
+			if (currentScrollPos > 0) currentScrollPos--;
+			if (currentScrollPos < 0) currentScrollPos = 0;
+			return true;
+		}
+		else if (buttonPressed == ScrollDownButtonId){ //RNL
+			// scroll down
+			if(currentScrollPos + MAX_WORD_LIST_LENGTH < keyWordList.size()) currentScrollPos++;
+			return true;
+		}
 	}
+
+	//RNL Check to see if pointer hovers a cipher character
+	POINT ap; ap.x = p.x / actualDrawWidthRatio; ap.y = p.y / actualDrawWidthRatio;
+	//Just check to see if cursor is in cipher so we don't have to go into the double for-loop all the time
+	currentCursorHover = -1;
+	if( (ap.x > borderWidth) && 
+		(ap.x < borderWidth + cipherCharacterWidth * cipherWidthInCharacters) &&
+		(ap.y > borderWidth) &&
+		(ap.y < borderWidth + cipherCharacterHeight * cipherHeightInCharacters)){
+
+		for (int i = 0; i < cipherHeightInCharacters; i++) {
+			for (int k = 0; k < cipherWidthInCharacters; k++) { 
+				if( (ap.x > borderWidth + k * cipherCharacterWidth) && 
+					(ap.x < borderWidth + (k+1) * cipherCharacterWidth) &&
+					(ap.y > borderWidth + i * cipherCharacterWidth) &&
+					(ap.y < borderWidth + (i+1) * cipherCharacterHeight)){
+						currentCursorHover = i * cipherWidthInCharacters + k;
+						break;
+				}
+
+			}
+			if( currentCursorHover != -1) break;
+		}
+
+	}
+
 	static bool keyDown = false;
 
 	const char* buffer = input.getKeyboardStateBuffer();
@@ -438,6 +477,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			#ifdef WE_HAVE_DICTIONARY
 			  makeNewKeyWordList();
             #endif
+			currentScrollPos = 0;
 		}
 		return true;
 	}
@@ -451,6 +491,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			#ifdef WE_HAVE_DICTIONARY
 			  makeNewKeyWordList();
             #endif
+			currentScrollPos = 0;
 		}
 		return true;
 	}
@@ -476,6 +517,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			#ifdef WE_HAVE_DICTIONARY
 			  makeNewKeyWordList();
 			#endif
+			currentScrollPos = 0;
 		}
 
 		return true;
@@ -533,6 +575,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			#ifdef WE_HAVE_DICTIONARY
 			  makeNewKeyWordList();
             #endif
+			currentScrollPos = 0;
 		}
 		return true;
 	}
@@ -604,6 +647,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 					selectionPos = -1;
 					focus = FOCUS_TYPING;
 				}
+				
 				break;
 			case FOCUS_POSITION:
 				focus = FOCUS_SELECTION;
@@ -819,6 +863,17 @@ bool CGameBase::ProcessRenderState () {
 	//RNL Border Placement
 	DrawBorder(0,0,cipherBorderWidthTotal,cipherBorderHeightTotal,borderWidth, kBorderColor);
 
+	//RNL Logo
+	STempRenderNode logoNode;
+	logoNode.textureHandle = miscTextures[0];
+	logoNode.color = kCodedCipherColor;
+	logoNode.scale = D3DXVECTOR3(256,256,1);
+	logoNode.pos = D3DXVECTOR3(kWordListLeft + 250,kScrollBarTop + kScrollBarHeight + 15,1);
+	graphics.addRenderNode(logoNode);
+
+	//RNL Shaded Square
+	SRenderNodeColor shadeColor = {1.0f,1.0f,1.0f,0.1f};
+
 	for (int i = 0; i < cipherHeightInCharacters; i++) {
 		for (int k = 0; k < cipherWidthInCharacters; k++) {
 			STempRenderNode tempNode;
@@ -879,7 +934,7 @@ bool CGameBase::ProcessRenderState () {
 	underlinecounter++;
 	if(bufferPos < MAX_TYPING_BUFFER - 1 && underlinecounter < 15){
 		//RNL fancy flashing underline
-		DrawColoredQuad( kTypingLeft + bufferPos * typedCharacterWidth, kTypingTop + typedCharacterWidth , typedCharacterWidth, 2, kTypedCursorCharacterColor);
+		DrawColoredQuad( kTypingLeft + 3 + bufferPos * typedCharacterWidth, kTypingTop + typedCharacterWidth , typedCharacterWidth - 6, 2, kTypedCursorCharacterColor);
 	}
 	if(underlinecounter >= 30){
 		underlinecounter = 0;
@@ -914,7 +969,10 @@ bool CGameBase::ProcessRenderState () {
 #ifdef WE_HAVE_DICTIONARY
 		std::vector<std::vector<int> >::iterator it = keyWordList.begin();
 			int count = 0;
-			while (it != keyWordList.end()) {
+			if (keyWordList.size() > MAX_WORD_LIST_LENGTH){
+				for(int j = 0; (j < currentScrollPos) && (it != keyWordList.end()); j++) ++it;
+			}
+			while (it != keyWordList.end() && count < MAX_WORD_LIST_LENGTH) {
 				for (int i = 0; i < (*it).size(); i++) {
 					STempRenderNode tempNode;
 					tempNode.scale = D3DXVECTOR3(typedCharacterWidth, typedCharacterHeight, 1);
@@ -1073,16 +1131,16 @@ void CGameBase::makeNewKeyWordList(){
 
 	for(int c = 0; c < 339; c++)
 	{
-		for(int s = 3; s <= 12; s++){
+		for(int s = 3; (s <= 12) && (s + c <= 340); s++){
 			word = solution.substr(c, s);
 			if(Dictionary.GetWordScore(Dictionary, word) != 0) {
 				CopyKeyWordToKeyWordList(word);
 				fout << stringcount++ << ": " << word << std::endl;
 				fout << keyWordList.size() << std::endl;
 			}
-			if (keyWordList.size() >= MAX_WORD_LIST_LENGTH) break;
+//			if (keyWordList.size() >= MAX_WORD_LIST_LENGTH) break;
 		}
-		if (keyWordList.size() >= MAX_WORD_LIST_LENGTH) break;
+//		if (keyWordList.size() >= MAX_WORD_LIST_LENGTH) break;
 	}
 
     fout.close();

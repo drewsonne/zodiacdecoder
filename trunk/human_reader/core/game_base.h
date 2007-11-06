@@ -26,7 +26,7 @@ enum EControlFocus {
 // TODO - we would like this to be a pure base class
 // projects would derive a game class from CGameBase
 #define MAX_TYPING_BUFFER 17
-#define MAX_WORD_LIST_LENGTH 15 //RNL
+#define MAX_WORD_LIST_LENGTH 19 //RNL
 
 const float borderWidth = 5.0f;
 const float cipherCharacterWidth = 30.0f;
@@ -112,6 +112,7 @@ public:
 	std::vector<int> conflictingKeyMap;
 	int typingBuffer[MAX_TYPING_BUFFER];
 	int currentTypingPos;
+	int currentScrollPos; //RNL
 	EControlFocus focus;
 	std::vector<std::vector<int> > wordList;
 	std::vector<std::vector<int> > keyWordList; //RNL
@@ -178,6 +179,7 @@ private:
 	void DrawColoredQuad(float left, float top, float width, float height, SRenderNodeColor color);
 
 	int miscWhiteTextureIndex;
+	int currentCursorHover; //RNL
 };
 
 #endif

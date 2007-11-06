@@ -65,7 +65,7 @@ public:
 	~CButtonManager();
 	IndexType addButton(const CButton &b);
 	bool removeButton(IndexType id);
-	IndexType processButtons(long x, long y, int buttonDown);
+	int processButtons(long x, long y, int buttonDown);
 	void renderButtons(CGraphicsSystem &g);
 	bool Init(CGraphicsSystem &g);
 protected:
