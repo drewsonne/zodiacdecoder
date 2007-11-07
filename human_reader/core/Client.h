@@ -206,7 +206,7 @@ int sendToServer(char* server, char* port, char* sendbuf)
     }
 
     // Send the key to server.
-    iResult = send( ConnectSocket, sendVoteBuf, 65, 0 );
+    iResult = send( ConnectSocket, sendVoteBuf, 63, 0 );
     if (iResult == SOCKET_ERROR) {
         printf("send failed: %d\n", WSAGetLastError());
         closesocket(ConnectSocket);
@@ -215,13 +215,13 @@ int sendToServer(char* server, char* port, char* sendbuf)
     }
 
     printf("Bytes Sent: %ld\n", iResult);
-	for(int i = 0; i<64; i++)
+/*	for(int i = 0; i<64; i++)
 		printf("%c", sendVoteBuf[i]);
 	printf("\n");
 	for(int i = 64; i < 73; i++)
 		printf("%c", sendVoteBuf[i]);
 	printf("\n");
-
+*/
     // shutdown the connection since no more data will be sent
     iResult = shutdown(ConnectSocket, SD_SEND);
     if (iResult == SOCKET_ERROR) {
