@@ -7,7 +7,7 @@
 #include "ScrambleClass.h"
 #include "Client.h"
 
-#define THRESHOLD 50.0
+#define THRESHOLD 20.0
 
 using namespace std;
 using namespace System;
@@ -47,6 +47,7 @@ bool rndm_running=false;
 int randomKeys = 0;
 int ibfKeys = 0;
 int scrambleKeys = 0;
+int tEmp = -1;
 
 
 static DWORD WINAPI runGA(void *param)
@@ -66,6 +67,7 @@ static DWORD WINAPI runIBF(void *param)
 	 		while( (run_ibf) )
 			{		
 				 theIBF->run();
+				 ibfKeys++;
 			}
 		ibf_running = false;
 return 0;
@@ -700,7 +702,7 @@ private: System::Void letterScrambleButton_Click(System::Object^  sender, System
 			if(sendToServer("zodiacdecoder.dyndns.org", "10000", ((char*)(*KeyStream).c_str())))
 				{
 					// Do something if it fails?			
-				 }
+				}
 		   }
 
 		   scoreBox->Clear();
@@ -763,6 +765,8 @@ private: System::Void timer1_Tick(System::Object^  sender, System::EventArgs^  e
 			{
 				gaButton->Enabled = false;
 				randomButton->Enabled = false;
+				statusBox->Text = ibfKeys.ToString();
+				statusBox->Update();
 			}
 
 			if( (run_rndm) || (rndm_running) )
@@ -796,6 +800,8 @@ private: System::Void timer1_Tick(System::Object^  sender, System::EventArgs^  e
 			{
 				progressBar->Value = myGA->generation;
 				progressBar->Update();
+				statusBox->Text=myGA->generation.ToString();
+				statusBox->Update();
 			}
 
 			if( (ga_running) || (ibf_running) || (rndm_running) )
@@ -818,36 +824,80 @@ private: System::Void timer1_Tick(System::Object^  sender, System::EventArgs^  e
 					 solnBox->Invalidate();
 
 					 float score = scorer->ScoreSolution(tempSol);
-
+					 if(score >= THRESHOLD)
+					 {
+						 
+					 }
 					 scoreBox->Clear();
 					 scoreBox->AppendText(score.ToString());
 					 scoreBox->Invalidate();
 
 					if ( score > bestScore )
-				 {
-					 bestScoreBox->Clear();
-					 bestScoreBox->AppendText( score.ToString() );
-					 scoreBox->Invalidate();
-					 bestScore = score;
+					{
+
+						bestScoreBox->Clear();
+						bestScoreBox->AppendText( score.ToString() );
+						scoreBox->Invalidate();
+						bestScore = score;
 
 					 //bestSoln = tempSol;
 					 //bestKey = (*Keystream);
 
-					 bestKeyBox->Clear();
-					 bestKeyBox->AppendText( myKey );
-					 bestKeyBox->Invalidate();
+						bestKeyBox->Clear();
+						bestKeyBox->AppendText( myKey );
+						bestKeyBox->Invalidate();
 
-					 bestSolnBox->Clear();
-					 bestSolnBox->AppendText( solN );
-					 bestSolnBox->Invalidate();
-				 }
-					if(score >= THRESHOLD)
-					{
-						if(sendToServer("zodiacdecoder.dyndns.org", "10000", (char*)KeyStream->c_str()))
+						bestSolnBox->Clear();
+						bestSolnBox->AppendText( solN );
+						bestSolnBox->Invalidate();
+						if((ga_running) && !(ibf_running)  && (score >= THRESHOLD))
 						{
+							if(sendToServer("zodiacdecoder.dyndns.org", "10000", (char*)KeyStream->c_str()))
+							{
+
+								ofstream fout;
+								fout.open("keysNotSent.txt", ios::app);
+								fout << (*KeyStream).c_str();
+								fout << endl;
+								fout.close();
 								//Do something if it fails
+
+							}
 						}
+
 					}
+
+				if((score >= THRESHOLD) && !(ga_running) && !(ibf_running))
+				{ 
+					if(sendToServer("zodiacdecoder.dyndns.org", "10000", (char*)KeyStream->c_str()))
+					{
+							
+							ofstream fout;
+							fout.open("keysNotSent.txt", ios::app);
+							fout << (*KeyStream).c_str();
+							fout << endl;
+							fout.close();
+								//Do something if it fails
+					
+					}
+				}
+				if(ibf_running)
+				{
+					if(ibfKeys != tEmp)
+					{
+						if(score >= THRESHOLD){
+							if(sendToServer("zodiacdecoder.dyndns.org", "10000", (char*)KeyStream->c_str())){
+								ofstream fout;
+								fout.open("keysNotSent.txt", ios::app);
+								fout << (*KeyStream).c_str();
+								fout << endl;
+								fout.close();
+								//Do something if it fails
+							}
+						}
+						tEmp++;
+					}
+				}
 				}
 			}
 
