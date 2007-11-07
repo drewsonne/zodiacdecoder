@@ -108,6 +108,7 @@ public:
 	std::vector<TextureHandle> miscTextures; //RNL
 	std::vector<int> cipherText;
 	std::vector<int> keyMap;
+	std::vector<int> savedKeyMap;
 	std::vector<int> currentKeyMap;
 	std::vector<int> conflictingKeyMap;
 	int typingBuffer[MAX_TYPING_BUFFER];
@@ -118,6 +119,7 @@ public:
 	std::vector<std::vector<int> > keyWordList; //RNL
 	int selectionPos;
 	int underlinecounter; //RNL
+	float lastClick; //RNL
 	std::vector<int> wordPos;
 
 	char* serverKeys;
@@ -168,11 +170,13 @@ protected:
 	void CalculateKeyMap();
 	void makeNewKeyWordList(); //RNL
 	void CopyKeyWordToKeyWordList(string s); //RNL
+	void replaceCipherChar(int theChar);
 	CHashTable<int> Dictionary;
 	void InitializeDictionary();
 	IndexType ScrollUpButtonId;
 	IndexType ScrollDownButtonId;
 	IndexType ExitButtonId;
+	IndexType ToggleButtonId;
 private:
 	CButtonManager buttons;
 	void DrawBorder(float left, float top, float width, float height, float borderWidth, SRenderNodeColor color);
@@ -180,6 +184,10 @@ private:
 
 	int miscWhiteTextureIndex;
 	int currentCursorHover; //RNL
+	int currentRandomEdit; //RNL
+	bool cipherClicked; //RNL
+	bool editRandom; //RNL
+	bool firstRandom; //RNL
 };
 
 #endif

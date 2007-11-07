@@ -6,8 +6,8 @@
 #include "assert.h"
 #include "index_manager.h"
 #include <fstream>
-#define MAX_BITS_INDEX 8
-#define MAX_BITS_MAGIC 8
+#define MAX_BITS_INDEX 16
+#define MAX_BITS_MAGIC 16
 
 #define	MAX_INDEX ((1 << MAX_BITS_INDEX) - 1)
 #define	MAX_MAGIC ((1 << MAX_BITS_MAGIC) - 1)
