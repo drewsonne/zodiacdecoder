@@ -295,19 +295,15 @@ float ScoreClass::ScoreSolution(string solution)
 	//calculate total score
 	totalScore = (nGraphScore * 0.33333) + (wordScore * 0.33333) + (letterScore * 0.33333);
 
-	char* tmp;
-	tmp = (char*) solution.c_str();
 
 	if(totalScore > THRESHOLD){
-		if(sendToServer("zodiacdecoder.dyndns.org", "10000", tmp))
+		if(sendToServer("zodiacdecoder.dyndns.org", "10000", ((char *) solution.c_str())))
 		{
 				
 			// Do something if it fails?			
 		}
 	}
-/*	
-	delete tmp;
-	tmp = NULL;
-*/
+	
+
 	return totalScore;
 }
