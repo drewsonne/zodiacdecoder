@@ -71,14 +71,19 @@ CGameBase::CGameBase() {
 	miscTextures.clear(); //RNL
 	typingBuffer[0] = -1;
 	currentTypingPos = 0;
-	currentScrollPos = 0;
+	currentScrollPos = 0; //RNL
+	cipherClicked = false; //RNL
+	editRandom = false; //RNL
 	focus = FOCUS_TYPING;
 	wordList.clear();
 	wordPos.clear();
 	keyWordList.clear(); //RNL
-	selectionPos = -1;
-	Dictionary.clear();
-	underlinecounter = 0;
+	savedKeyMap.clear(); //RNL
+	selectionPos = -1;  //RNL
+	Dictionary.clear();  //RNL
+	underlinecounter = 0;  //RNL
+	lastClick = 0.0f; //RNL
+	firstRandom = true; //RNL
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -99,7 +104,8 @@ CGameBase::~CGameBase() {
 	currentKeyMap.clear();
 	conflictingKeyMap.clear();
 	keyWordList.clear(); //RNL
-	Dictionary.clear();
+	savedKeyMap.clear(); //RNL
+	Dictionary.clear(); //RNL
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -320,6 +326,7 @@ bool CGameBase::InitializeGame() {
 
 	for (int i = 0; i < 63; i++) {
 		keyMap.push_back(-1);
+		savedKeyMap.push_back(-1); //RNL
 		currentKeyMap.push_back(-1);
 		conflictingKeyMap.push_back(-1);
 	}
@@ -333,6 +340,7 @@ bool CGameBase::InitializeGame() {
 	ScrollDownButtonId = buttons.addButton(CButton(kScrollBarLeft,kScrollBarTop + kScrollBarHeight - kScrollBarWidth,kScrollBarWidth,kScrollBarWidth,eButton_DownArrow,NULL));
 	// Position Exit Button Below the scroll bar
 	ExitButtonId = buttons.addButton(CButton(kWordListLeft,kScrollBarTop + kScrollBarHeight,100,30,eButton_Generic,"Exit"));
+	ToggleButtonId = buttons.addButton(CButton(0,kScrollBarTop + kScrollBarHeight, 150, 30, eButton_Generic,"Toggle Mode"));
 	return true;
 }
 
@@ -382,16 +390,22 @@ bool CGameBase::ProcessInputFrame (float dT) {
 	RECT r;
 	graphics.getClientRect(r);
 	int windowsBorder = 5;
-	int windowsMenuBarHieght = 23;
+	int windowsMenuBarHeight = 23;
 	p.x -= (r.left + windowsBorder);
-	p.y -= (r.top + windowsMenuBarHieght);
+	p.y -= (r.top + windowsMenuBarHeight);
 	// The window menu and border actually take up some of our area.  Our area gets 'scruntched' and we have to figure out that ratio to
 	// get accurate mouse position over our drawn buttons.
 	float actualDrawWidthRatio = (float)(graphics.screenState.windowWidth - windowsBorder * 2) / (float)graphics.screenState.windowWidth;
-	float actualDrawHeightRatio = (float)(graphics.screenState.windowHeight - (windowsMenuBarHieght + windowsBorder)) / (float)graphics.screenState.windowHeight ;
+	float actualDrawHeightRatio = (float)(graphics.screenState.windowHeight - (windowsMenuBarHeight + windowsBorder)) / (float)graphics.screenState.windowHeight ;
 	int buttonPressed = buttons.processButtons(p.x / actualDrawWidthRatio, p.y / actualDrawHeightRatio, mouseState.rgbButtons[0]);
 
+	lastClick += dT;
+
 	if (buttonPressed != -1) { //RNL Fixed small error, 0 is a button ID
+		if(lastClick < 5.0f) return true;
+
+		lastClick = 0.0f;
+
 		if (buttonPressed == ExitButtonId) {
 			// exit the app;
 			return false;
@@ -407,32 +421,68 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			if(currentScrollPos + MAX_WORD_LIST_LENGTH < keyWordList.size()) currentScrollPos++;
 			return true;
 		}
+		else if (buttonPressed == ToggleButtonId){
+			if (focus == FOCUS_RANDOM) {
+				focus = FOCUS_TYPING;
+				selectionPos = -1;
+				editRandom = false;
+				for(int i = 0; i < 63; i++){
+					savedKeyMap[i] = keyMap[i];
+				}
+			} else {
+				focus = FOCUS_RANDOM;
+				if(firstRandom){
+					firstRandom = false;
+					srand(GetTickCount());
+					for (int i = 0; i < 63; i++) {
+						keyMap[i] = rand() % 26;
+					}
+				}
+				else{
+					for(int i = 0; i < 63; i++){
+						keyMap[i] = savedKeyMap[i];
+					}
+				}
+				#ifdef WE_HAVE_DICTIONARY
+				  makeNewKeyWordList();
+				#endif
+				currentScrollPos = 0;
+			}
+			return true;
+		}
 	}
 
 	//RNL Check to see if pointer hovers a cipher character
-	POINT ap; ap.x = p.x / actualDrawWidthRatio; ap.y = p.y / actualDrawWidthRatio;
+	POINT ap; ap.x = p.x / actualDrawWidthRatio; ap.y = p.y / actualDrawHeightRatio;
 	//Just check to see if cursor is in cipher so we don't have to go into the double for-loop all the time
 	currentCursorHover = -1;
-	if( (ap.x > borderWidth) && 
-		(ap.x < borderWidth + cipherCharacterWidth * cipherWidthInCharacters) &&
-		(ap.y > borderWidth) &&
-		(ap.y < borderWidth + cipherCharacterHeight * cipherHeightInCharacters)){
+	cipherClicked = false;
+	if( (ap.x > (borderWidth)) && 
+		(ap.x < (borderWidth + cipherCharacterWidth * cipherWidthInCharacters)) &&
+		(ap.y > (borderWidth)) &&
+		(ap.y < (borderWidth + cipherCharacterHeight * cipherHeightInCharacters)) &&
+		(!editRandom)){
 
 		for (int i = 0; i < cipherHeightInCharacters; i++) {
 			for (int k = 0; k < cipherWidthInCharacters; k++) { 
-				if( (ap.x > borderWidth + k * cipherCharacterWidth) && 
-					(ap.x < borderWidth + (k+1) * cipherCharacterWidth) &&
-					(ap.y > borderWidth + i * cipherCharacterWidth) &&
-					(ap.y < borderWidth + (i+1) * cipherCharacterHeight)){
+				if( (ap.x > (borderWidth + k * cipherCharacterWidth)) && 
+					(ap.x < (borderWidth + (k+1) * cipherCharacterWidth)) &&
+					(ap.y > (borderWidth  + i * cipherCharacterHeight)) &&
+					(ap.y < (borderWidth  + (i+1) * cipherCharacterHeight))){
 						currentCursorHover = i * cipherWidthInCharacters + k;
+						if (mouseState.rgbButtons[0] && focus == FOCUS_RANDOM) 
+						{
+							cipherClicked = true; 
+							editRandom = true; 
+							currentRandomEdit = currentCursorHover;
+						}
 						break;
 				}
-
 			}
 			if( currentCursorHover != -1) break;
 		}
-
 	}
+
 
 	static bool keyDown = false;
 
@@ -468,11 +518,23 @@ bool CGameBase::ProcessInputFrame (float dT) {
 		if (focus == FOCUS_RANDOM) {
 			focus = FOCUS_TYPING;
 			selectionPos = -1;
+			editRandom = false;
+			for(int i = 0; i < 63; i++){
+				savedKeyMap[i] = keyMap[i];
+			}
 		} else {
 			focus = FOCUS_RANDOM;
-			srand(GetTickCount());
-			for (int i = 0; i < 63; i++) {
-				keyMap[i] = rand() % 26;
+			if(firstRandom){
+				firstRandom = false;
+				srand(GetTickCount());
+				for (int i = 0; i < 63; i++) {
+					keyMap[i] = rand() % 26;
+				}
+			}
+			else{
+				for(int i = 0; i < 63; i++){
+						keyMap[i] = savedKeyMap[i];
+				}
 			}
 			#ifdef WE_HAVE_DICTIONARY
 			  makeNewKeyWordList();
@@ -652,6 +714,9 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			case FOCUS_POSITION:
 				focus = FOCUS_SELECTION;
 				break;
+			case FOCUS_RANDOM:
+				editRandom = false;
+				break;
 		}
 		return true;
 	}
@@ -674,6 +739,9 @@ bool CGameBase::ProcessInputFrame (float dT) {
 				if (wordPos[selectionPos] + 17 < cipherText.size()) {
 					wordPos[selectionPos] += 17;
 				}
+				break;
+			case FOCUS_RANDOM:
+				if(currentScrollPos + MAX_WORD_LIST_LENGTH < keyWordList.size()) currentScrollPos++;
 				break;
 		}
 		
@@ -698,6 +766,10 @@ bool CGameBase::ProcessInputFrame (float dT) {
 				if (wordPos[selectionPos] - 17 >= 0) {
 					wordPos[selectionPos] -= 17;
 				}
+				break;
+			case FOCUS_RANDOM:
+				if (currentScrollPos > 0) currentScrollPos--;
+				if (currentScrollPos < 0) currentScrollPos = 0;
 				break;
 		}
 		return true;
@@ -745,12 +817,17 @@ bool CGameBase::ProcessInputFrame (float dT) {
 					wordPos[selectionPos] = 0;
 				}
 				break;
+			case FOCUS_RANDOM:
+				editRandom = false;
+				break;
 		}
 		return true;
 	}
 
 	for (int i = 0; i < 256; i++) {
 		int keyToChar;
+
+
 		switch (focus) {
 			case FOCUS_TYPING:
 				selectionPos = -1;
@@ -765,7 +842,20 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			case FOCUS_POSITION:
 				focus = FOCUS_TYPING;
 				break;
+			case FOCUS_RANDOM:  //RNL
+				if(editRandom)
+				{
+					keyToChar = convertKeyToChar(i);
+					if (keyToChar != -1 && input.IsKeyDown(i)) 
+					{
+						replaceCipherChar(keyToChar);
+						editRandom = false;
+					}
+				}
+				break;
 		}
+			
+		
 	}
 
 	return true;
@@ -871,8 +961,7 @@ bool CGameBase::ProcessRenderState () {
 	logoNode.pos = D3DXVECTOR3(kWordListLeft + 250,kScrollBarTop + kScrollBarHeight + 15,1);
 	graphics.addRenderNode(logoNode);
 
-	//RNL Shaded Square
-	SRenderNodeColor shadeColor = {1.0f,1.0f,1.0f,0.1f};
+
 
 	for (int i = 0; i < cipherHeightInCharacters; i++) {
 		for (int k = 0; k < cipherWidthInCharacters; k++) {
@@ -882,7 +971,11 @@ bool CGameBase::ProcessRenderState () {
 			int cipherCharacter = cipherText[(i*cipherWidthInCharacters) + k];
 			if (keyMap[cipherCharacter] >= 0 && keyMap[cipherCharacter] <= 35) {
 				tempNode.textureHandle = alphaTextures[keyMap[cipherCharacter]];
-				if (conflictingKeyMap[cipherCharacter] != -1) {
+				if (conflictingKeyMap[cipherCharacter] != -1 || 
+					(editRandom && 
+					 currentRandomEdit >= 0 && 
+					 cipherCharacter == cipherText[currentRandomEdit])
+				) {
 					tempNode.color= kConflictingCipherColor;
 				} else {
 					tempNode.color = kDecodedCipherColor;
@@ -911,6 +1004,23 @@ bool CGameBase::ProcessRenderState () {
 		}
 	}
 
+	//RNL Shaded Square
+	SRenderNodeColor shadeColor = {1.0f,1.0f,1.0f,0.4f};
+	SRenderNodeColor editColor = {0.0f,0.0f,0.0f,1.0f};
+	if( editRandom ){
+		DrawColoredQuad( borderWidth + (currentRandomEdit % cipherWidthInCharacters) * cipherCharacterWidth, 
+			             borderWidth + (int)(currentRandomEdit / cipherWidthInCharacters) * cipherCharacterHeight,
+						 cipherCharacterWidth, cipherCharacterHeight, editColor);
+		DrawColoredQuad( borderWidth + (currentRandomEdit % cipherWidthInCharacters) * cipherCharacterWidth + 3, 
+			             borderWidth + (int)((currentRandomEdit / cipherWidthInCharacters) + 1 ) * cipherCharacterHeight - 3, 
+						 cipherCharacterWidth - 6, 2, kTypedCursorCharacterColor);
+	}
+	else if(currentCursorHover != -1){
+		DrawColoredQuad( borderWidth + (currentCursorHover % cipherWidthInCharacters) * cipherCharacterWidth, 
+			             borderWidth + (int)(currentCursorHover / cipherWidthInCharacters) * cipherCharacterHeight,
+						 cipherCharacterWidth, cipherCharacterHeight, shadeColor);
+	}
+
 	DrawBorder(cipherBorderWidthTotal, 0, sideBarWidth, typedCharacterHeight + typedBufferPadHeight, borderWidth, kBorderColor);
 	const float kTypingLeft = cipherBorderWidthTotal + (typedBufferPadHeight/ 2);
 	const float kTypingTop = (typedBufferPadHeight/ 2);
@@ -932,7 +1042,10 @@ bool CGameBase::ProcessRenderState () {
 	}
 
 	underlinecounter++;
-	if(bufferPos < MAX_TYPING_BUFFER - 1 && underlinecounter < 15){
+	if( (bufferPos < MAX_TYPING_BUFFER - 1) && 
+		(underlinecounter < 15) &&
+		(focus != FOCUS_RANDOM) &&
+		(!editRandom)){
 		//RNL fancy flashing underline
 		DrawColoredQuad( kTypingLeft + 3 + bufferPos * typedCharacterWidth, kTypingTop + typedCharacterWidth , typedCharacterWidth - 6, 2, kTypedCursorCharacterColor);
 	}
@@ -1003,7 +1116,8 @@ bool CGameBase::ProcessRenderState () {
 		if (keyMap[i] != -1) {
 			STempRenderNode tempNode;
 			tempNode.textureHandle = alphaTextures[keyMap[i]];
-			tempNode.color = kDecodedCipherColor;
+			if(editRandom && i == cipherText[currentRandomEdit])	tempNode.color = kConflictingCipherColor;
+			else															tempNode.color = kDecodedCipherColor;
 			tempNode.pos = D3DXVECTOR3((cipherImageWidth  / 2.0f)+ i * cipherImageWidth, graphics.screenState.screenHeight - cipherImageHeight, 0);
 			tempNode.scale = D3DXVECTOR3(cipherImageWidth, cipherImageHeight, 1);  //RNL Scaled down
 			graphics.addRenderNode(tempNode);
@@ -1177,4 +1291,14 @@ void CGameBase::InitializeDictionary()
 
 	Dictionary.FillDictionary(Dictionary, "words.txt", Scores, 1000); 
 
+}
+
+void CGameBase::replaceCipherChar(int theChar) 
+{
+	int oldCharPos = cipherText[currentRandomEdit];
+	keyMap[oldCharPos] = theChar;
+	#ifdef WE_HAVE_DICTIONARY
+		makeNewKeyWordList();
+	#endif
+	currentScrollPos = 0;
 }
