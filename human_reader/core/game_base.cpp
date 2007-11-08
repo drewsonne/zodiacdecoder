@@ -460,7 +460,44 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			return true;
 		}
 		else if(buttonPressed == LoadFromServerButtonId){
-			if (focus == FOCUS_RANDOM) {
+		if (focus == FOCUS_RANDOM) {
+			serverKeys="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+			char serverTmp[] = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+			char* servername = "localhost"; //Server Name
+			//Note: KeyMap is a vector of ints, so you can't use that directly
+			HWND hwnd2 = GetActiveWindow();
+			MessageBox(hwnd2, "Attempting to retrieve key from server. Please ensure you are connected to the internet and have set your firewall to allow traffic over port 10001. Please click OK when you are ready.", "Retrieving key", 0);
+			std::ofstream foutq;
+			foutq.open("key.out", std::ios::out);
+			if (getKeysFromServer(serverTmp)==0){
+				for(int i=0; i < 63; i++){
+					foutq << serverTmp[i];
+				}
+			
+
+				//Put something here to say the key was received?
+				HWND hwnd1 = GetActiveWindow();
+				MessageBox(hwnd1, "Key retrieved! Click OK and press F4.", "Transfer Succeeded", 0);
+				/*std::ofstream fout;
+				fout.open("key.out", std::ios::out);
+				for(int i = 0; i < 63; i++){
+					if(serverKeys[i] <= 122 && serverKeys[i] >= 97)
+						fout << (char)(serverKeys[i] - 32);
+				}
+				fout.close();*/
+			}
+			else {
+				//Put something here to say the key was not received, perhaps flag something
+				HWND hwnd1 = GetActiveWindow();
+				MessageBox(hwnd1, "Key could not be retrieved from server. Check your firewall settings and your internet connection to ensure you are connected and may send over port 10001", "Connection Error", 0);
+				
+			}
+			foutq.close();
+			#ifdef WE_HAVE_DICTIONARY
+			  makeNewKeyWordList();
+            #endif
+		}
+			/*if (focus == FOCUS_RANDOM) {
 				char* servername = "zodiacdecoder.dyndns.org"; //Server Name
 				//Note: KeyMap is a vector of ints, so you can't use that directly
 				HWND hwnd2 = GetActiveWindow();
@@ -486,7 +523,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 				#ifdef WE_HAVE_DICTIONARY
 				  makeNewKeyWordList();
 				#endif
-			}
+			}*/
 			return true;
 		}
 		else if(buttonPressed == LoadFromFileButtonId){
@@ -515,6 +552,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 		}
 		else if(buttonPressed == VoteOnKeyButtonId){
 			if (focus == FOCUS_RANDOM) {
+				//char* servername = "zodiacdecoder.dyndns.org";
 				char* servername = "zodiacdecoder.dyndns.org";
 				char* port = "10002";
 				//Server Name
@@ -780,21 +818,30 @@ bool CGameBase::ProcessInputFrame (float dT) {
 	//One problem: this code does not take the delay of sending keys into consideration
 	if (input.IsKeyDown(DIK_F7)) {
 		if (focus == FOCUS_RANDOM) {
+			serverKeys="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+			char serverTmp[] = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
 			char* servername = "zodiacdecoder.dyndns.org"; //Server Name
 			//Note: KeyMap is a vector of ints, so you can't use that directly
 			HWND hwnd2 = GetActiveWindow();
 			MessageBox(hwnd2, "Attempting to retrieve key from server. Please ensure you are connected to the internet and have set your firewall to allow traffic over port 10001. Please click OK when you are ready.", "Retrieving key", 0);
-			if (getKeysFromServer(serverKeys)==0){ 
+			std::ofstream foutq;
+			foutq.open("key.out", std::ios::out);
+			if (getKeysFromServer(serverTmp)==0){
+				for(int i=0; i < 63; i++){
+					foutq << serverTmp[i];
+				}
+			
+
 				//Put something here to say the key was received?
 				HWND hwnd1 = GetActiveWindow();
 				MessageBox(hwnd1, "Key retrieved! Click OK and press F4.", "Transfer Succeeded", 0);
-				std::ofstream fout;
+				/*std::ofstream fout;
 				fout.open("key.out", std::ios::out);
 				for(int i = 0; i < 63; i++){
 					if(serverKeys[i] <= 122 && serverKeys[i] >= 97)
 						fout << (char)(serverKeys[i] - 32);
 				}
-				fout.close();
+				fout.close();*/
 			}
 			else {
 				//Put something here to say the key was not received, perhaps flag something
@@ -802,6 +849,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 				MessageBox(hwnd1, "Key could not be retrieved from server. Check your firewall settings and your internet connection to ensure you are connected and may send over port 10001", "Connection Error", 0);
 				
 			}
+			foutq.close();
 			#ifdef WE_HAVE_DICTIONARY
 			  makeNewKeyWordList();
             #endif
