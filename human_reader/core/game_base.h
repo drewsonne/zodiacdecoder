@@ -42,10 +42,11 @@ const int cipherBorderHeightTotal = 2 * borderWidth + cipherHeightInCharacters *
 const int dropShadowOffset = 10;
 const float sideBarWidth = 1024 - (cipherBorderWidthTotal);
 
+const float buttonHeight = 30.0f; //RNL
 const float kScrollBarWidth = 20.0f;
-const float kScrollBarTop  = typedCharacterHeight + typedBufferPadHeight;
+const float kScrollBarTop  = typedCharacterHeight + typedBufferPadHeight + buttonHeight;
 const float kWordListLeft = cipherBorderWidthTotal;
-const float kWordListTop = typedCharacterHeight + typedBufferPadHeight;
+const float kWordListTop = typedCharacterHeight + typedBufferPadHeight + buttonHeight;
 const float kWordListEntryHeight = typedCharacterHeight;
 const float kWordListViewableCount = 19;
 const float kWordListWidth = sideBarWidth - kScrollBarWidth;
@@ -177,6 +178,12 @@ protected:
 	IndexType ScrollDownButtonId;
 	IndexType ExitButtonId;
 	IndexType ToggleButtonId;
+	IndexType LoadFromServerButtonId;
+	IndexType LoadFromFileButtonId;
+	IndexType VoteOnKeyButtonId;
+//	IndexType HRHelpButtonId;
+	IndexType RandomKeyButtonId;
+
 private:
 	CButtonManager buttons;
 	void DrawBorder(float left, float top, float width, float height, float borderWidth, SRenderNodeColor color);
@@ -184,6 +191,7 @@ private:
 
 	int miscWhiteTextureIndex;
 	int currentCursorHover; //RNL
+	int currentWordHover; //RNL
 	int currentRandomEdit; //RNL
 	bool cipherClicked; //RNL
 	bool editRandom; //RNL
