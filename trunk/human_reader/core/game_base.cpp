@@ -84,6 +84,7 @@ CGameBase::CGameBase() {
 	underlinecounter = 0;  //RNL
 	lastClick = 0.0f; //RNL
 	firstRandom = true; //RNL
+	currentWordHover = -1; //RNL
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -339,8 +340,16 @@ bool CGameBase::InitializeGame() {
 	ScrollUpButtonId = buttons.addButton(CButton(kScrollBarLeft,kScrollBarTop,kScrollBarWidth,kScrollBarWidth,eButton_UpArrow,NULL));
 	ScrollDownButtonId = buttons.addButton(CButton(kScrollBarLeft,kScrollBarTop + kScrollBarHeight - kScrollBarWidth,kScrollBarWidth,kScrollBarWidth,eButton_DownArrow,NULL));
 	// Position Exit Button Below the scroll bar
-	ExitButtonId = buttons.addButton(CButton(kWordListLeft,kScrollBarTop + kScrollBarHeight,100,30,eButton_Generic,"Exit"));
-	ToggleButtonId = buttons.addButton(CButton(0,kScrollBarTop + kScrollBarHeight, 150, 30, eButton_Generic,"Toggle Mode"));
+	
+	ToggleButtonId = buttons.addButton(CButton(0,0,150,buttonHeight,eButton_Generic,"Toggle Mode"));
+	RandomKeyButtonId = buttons.addButton(CButton(151,0,150,buttonHeight,eButton_Generic,"Random Key"));
+	LoadFromFileButtonId = buttons.addButton(CButton(302,0,200,buttonHeight,eButton_Generic,"Load Key from File"));
+	LoadFromServerButtonId = buttons.addButton(CButton(503,0,200,buttonHeight,eButton_Generic,"Load Key from Server"));
+	VoteOnKeyButtonId = buttons.addButton(CButton(704,0,200,buttonHeight,eButton_Generic,"Send Key to Server"));
+//	HRHelpButtonId = buttons.addButton(CButton(855,0,80,buttonHeight,eButton_Generic,"Help"));
+	ExitButtonId = buttons.addButton(CButton(905,0,graphics.screenState.screenWidth - 905,buttonHeight,eButton_Generic,"Exit"));
+	
+	
 	return true;
 }
 
@@ -389,8 +398,8 @@ bool CGameBase::ProcessInputFrame (float dT) {
 	input.getMousePos(p);
 	RECT r;
 	graphics.getClientRect(r);
-	int windowsBorder = 5;
-	int windowsMenuBarHeight = 23;
+	int windowsBorder = 5; //Warning: actually a variable
+	int windowsMenuBarHeight = 23; //Warning: actually a variable
 	p.x -= (r.left + windowsBorder);
 	p.y -= (r.top + windowsMenuBarHeight);
 	// The window menu and border actually take up some of our area.  Our area gets 'scruntched' and we have to figure out that ratio to
@@ -450,6 +459,105 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			}
 			return true;
 		}
+		else if(buttonPressed == LoadFromServerButtonId){
+			if (focus == FOCUS_RANDOM) {
+				char* servername = "zodiacdecoder.dyndns.org"; //Server Name
+				//Note: KeyMap is a vector of ints, so you can't use that directly
+				HWND hwnd2 = GetActiveWindow();
+				MessageBox(hwnd2, "Attempting to retrieve key from server. Please ensure you are connected to the internet and have set your firewall to allow traffic over port 10001. Please click OK when you are ready.", "Retrieving key", 0);
+				if (getKeysFromServer(serverKeys)==0){ 
+					//Put something here to say the key was received?
+					HWND hwnd1 = GetActiveWindow();
+					MessageBox(hwnd1, "Key retrieved! Click OK and press F4.", "Transfer Succeeded", 0);
+					std::ofstream fout;
+					fout.open("key.out", std::ios::out);
+					for(int i = 0; i < 63; i++){
+						if(serverKeys[i] <= 122 && serverKeys[i] >= 97)
+							fout << (char)(serverKeys[i] - 32);
+					}
+					fout.close();
+				}
+				else {
+					//Put something here to say the key was not received, perhaps flag something
+					HWND hwnd1 = GetActiveWindow();
+					MessageBox(hwnd1, "Key could not be retrieved from server. Check your firewall settings and your internet connection to ensure you are connected and may send over port 10001", "Connection Error", 0);
+					
+				}
+				#ifdef WE_HAVE_DICTIONARY
+				  makeNewKeyWordList();
+				#endif
+			}
+			return true;
+		}
+		else if(buttonPressed == LoadFromFileButtonId){
+			if (focus == FOCUS_RANDOM) {
+				std::ifstream inFile;
+				string solution ="";
+				inFile.open("key.out");
+
+				
+				int i = 0;
+				char inputchar = 0;
+				while (!inFile.eof() && i < 63) {
+					inputchar = inFile.get();
+					keyMap[i] = (int)(inputchar - 'A') ;
+					i++;
+				}
+				
+				inFile.close();
+				
+				#ifdef WE_HAVE_DICTIONARY
+				  makeNewKeyWordList();
+				#endif
+				currentScrollPos = 0;
+			}
+			return true;
+		}
+		else if(buttonPressed == VoteOnKeyButtonId){
+			if (focus == FOCUS_RANDOM) {
+				char* servername = "zodiacdecoder.dyndns.org";
+				char* port = "10002";
+				//Server Name
+				
+				//Note: KeyMap is a vector of ints, so you can't use that directly
+				char charKeyMap[63];
+				for(int i = 0;i<63;i++){
+					charKeyMap[i] = (char)keyMap[i] + 'A';
+				}
+							HWND hwnd2 = GetActiveWindow();
+				MessageBox(hwnd2, "Attempting to send key to server. Please ensure you are connected to the internet and have set your firewall to allow traffic over port 10002. Please click OK when you are ready.", "Sending key", 0);
+				if (sendToServer(servername, port, charKeyMap)==0){
+
+					//Put something here to say the key was sent, perhaps flag something
+					HWND hwnd1 = GetActiveWindow();
+					MessageBox(hwnd1, "Your good key was sent!", "Transfer Succeeded", 0);
+					
+				}
+				else {
+					HWND hwnd1 = GetActiveWindow();
+					MessageBox(hwnd1, "Key could not be sent to server. Check your firewall settings and your internet connection to ensure you are connected and may send over port 10002", "Connection Error", 0);
+					//Put something here to say the key was not sent, perhaps flag something
+				} 
+				#ifdef WE_HAVE_DICTIONARY
+				  makeNewKeyWordList();
+				#endif
+				currentScrollPos = 0;
+			}
+			return true;
+		}
+		else if(buttonPressed == RandomKeyButtonId){
+			if (focus == FOCUS_RANDOM) {
+				srand(GetTickCount());
+				for (int i = 0; i < 63; i++) {
+					keyMap[i] = rand() % 26;
+				}
+				#ifdef WE_HAVE_DICTIONARY
+				  makeNewKeyWordList();
+				#endif
+				currentScrollPos = 0;
+			}
+			return true;
+		}
 	}
 
 	//RNL Check to see if pointer hovers a cipher character
@@ -459,16 +567,16 @@ bool CGameBase::ProcessInputFrame (float dT) {
 	cipherClicked = false;
 	if( (ap.x > (borderWidth)) && 
 		(ap.x < (borderWidth + cipherCharacterWidth * cipherWidthInCharacters)) &&
-		(ap.y > (borderWidth)) &&
-		(ap.y < (borderWidth + cipherCharacterHeight * cipherHeightInCharacters)) &&
-		(!editRandom)){
-
+		(ap.y > (borderWidth + buttonHeight)) &&
+		(ap.y < (borderWidth + buttonHeight + cipherCharacterHeight * cipherHeightInCharacters)) &&
+		(!editRandom))
+	{
 		for (int i = 0; i < cipherHeightInCharacters; i++) {
 			for (int k = 0; k < cipherWidthInCharacters; k++) { 
 				if( (ap.x > (borderWidth + k * cipherCharacterWidth)) && 
 					(ap.x < (borderWidth + (k+1) * cipherCharacterWidth)) &&
-					(ap.y > (borderWidth  + i * cipherCharacterHeight)) &&
-					(ap.y < (borderWidth  + (i+1) * cipherCharacterHeight))){
+					(ap.y > (borderWidth + buttonHeight + i * cipherCharacterHeight)) &&
+					(ap.y < (borderWidth + buttonHeight + (i+1) * cipherCharacterHeight))){
 						currentCursorHover = i * cipherWidthInCharacters + k;
 						if (mouseState.rgbButtons[0] && focus == FOCUS_RANDOM) 
 						{
@@ -482,7 +590,34 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			if( currentCursorHover != -1) break;
 		}
 	}
-
+	else if((ap.x > (borderWidth + kWordListLeft)) && 
+			(ap.x < (borderWidth + kWordListLeft + kWordListWidth)) &&
+			(ap.y > (borderWidth + kWordListTop )) &&
+			(ap.y < (borderWidth + kWordListTop + kWordListHeight)) &&
+			(!editRandom))
+	{
+		for(int i = 0; i < MAX_WORD_LIST_LENGTH; i++){
+			if((ap.x > (borderWidth + kWordListLeft)) && 
+			   (ap.x < (borderWidth + kWordListLeft + kWordListWidth)) &&
+			   (ap.y > (borderWidth + kWordListTop + i * cipherCharacterHeight)) &&
+			   (ap.y < (borderWidth + kWordListTop + (i+1) * cipherCharacterHeight)))
+			{
+				if(focus == FOCUS_RANDOM && i >= keyWordList.size()) break;
+				else if( i >= wordList.size()) break;
+				currentWordHover = i;
+				if (focus == FOCUS_SELECTION) selectionPos = i;
+				if (mouseState.rgbButtons[0] && focus != FOCUS_RANDOM) 
+				{
+					focus = FOCUS_POSITION;
+					if (wordPos[i] == -1) {
+						wordPos[i] = 0;
+					}
+					currentWordHover = -1;
+				}
+				break;
+			}
+		}
+	}
 
 	static bool keyDown = false;
 
@@ -559,7 +694,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 	}
 
 	if (input.IsKeyDown(DIK_F4)) {
-		if(focus == FOCUS_TYPING) focus = FOCUS_RANDOM;
+//		if(focus == FOCUS_TYPING) focus = FOCUS_RANDOM;
 		if (focus == FOCUS_RANDOM) {
 			std::ifstream inFile;
 			string solution ="";
@@ -614,7 +749,6 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			char* servername = "zodiacdecoder.dyndns.org";
 			char* port = "10002";
 			//Server Name
-			//WARNING: The following assumes keyMap is in same format as the server's key map
 			//Note: KeyMap is a vector of ints, so you can't use that directly
 			char charKeyMap[63];
 			for(int i = 0;i<63;i++){
@@ -647,7 +781,6 @@ bool CGameBase::ProcessInputFrame (float dT) {
 	if (input.IsKeyDown(DIK_F7)) {
 		if (focus == FOCUS_RANDOM) {
 			char* servername = "zodiacdecoder.dyndns.org"; //Server Name
-			//WARNING: The following assumes keyMap is in same format as the server's key map
 			//Note: KeyMap is a vector of ints, so you can't use that directly
 			HWND hwnd2 = GetActiveWindow();
 			MessageBox(hwnd2, "Attempting to retrieve key from server. Please ensure you are connected to the internet and have set your firewall to allow traffic over port 10001. Please click OK when you are ready.", "Retrieving key", 0);
@@ -951,17 +1084,23 @@ bool CGameBase::ProcessRenderState () {
 	CalculateKeyMap();
 
 	//RNL Border Placement
-	DrawBorder(0,0,cipherBorderWidthTotal,cipherBorderHeightTotal,borderWidth, kBorderColor);
+	DrawBorder(0,buttonHeight,cipherBorderWidthTotal,cipherBorderHeightTotal,borderWidth, kBorderColor);
 
 	//RNL Logo
 	STempRenderNode logoNode;
 	logoNode.textureHandle = miscTextures[0];
 	logoNode.color = kCodedCipherColor;
 	logoNode.scale = D3DXVECTOR3(256,256,1);
-	logoNode.pos = D3DXVECTOR3(kWordListLeft + 250,kScrollBarTop + kScrollBarHeight + 15,1);
+	logoNode.pos = D3DXVECTOR3(kWordListLeft + 250,kScrollBarTop + kScrollBarHeight,1);
 	graphics.addRenderNode(logoNode);
 
-
+    //RNL Bottom Border thing
+	STempRenderNode smallBorderNode;
+	smallBorderNode.textureHandle = borderTextures[1];
+	smallBorderNode.color = kBorderColor;
+	smallBorderNode.scale = D3DXVECTOR3(graphics.screenState.screenWidth,borderWidth,0);
+	smallBorderNode.pos = D3DXVECTOR3(0,kScrollBarTop + kScrollBarHeight, 1);
+	graphics.addRenderNode(smallBorderNode);
 
 	for (int i = 0; i < cipherHeightInCharacters; i++) {
 		for (int k = 0; k < cipherWidthInCharacters; k++) {
@@ -997,33 +1136,18 @@ bool CGameBase::ProcessRenderState () {
 				tempNode.textureHandle = cipherTextures[cipherCharacter];
 				tempNode.color = kCodedCipherColor;
 			}
-			tempNode.pos = D3DXVECTOR3(borderWidth + k * cipherCharacterWidth, borderWidth + i * cipherCharacterHeight, 0);
+			tempNode.pos = D3DXVECTOR3(borderWidth + k * cipherCharacterWidth, borderWidth + buttonHeight + i * cipherCharacterHeight, 0);
 
 			graphics.addRenderNode(tempNode);
 
 		}
 	}
 
-	//RNL Shaded Square
-	SRenderNodeColor shadeColor = {1.0f,1.0f,1.0f,0.4f};
-	SRenderNodeColor editColor = {0.0f,0.0f,0.0f,1.0f};
-	if( editRandom ){
-		DrawColoredQuad( borderWidth + (currentRandomEdit % cipherWidthInCharacters) * cipherCharacterWidth, 
-			             borderWidth + (int)(currentRandomEdit / cipherWidthInCharacters) * cipherCharacterHeight,
-						 cipherCharacterWidth, cipherCharacterHeight, editColor);
-		DrawColoredQuad( borderWidth + (currentRandomEdit % cipherWidthInCharacters) * cipherCharacterWidth + 3, 
-			             borderWidth + (int)((currentRandomEdit / cipherWidthInCharacters) + 1 ) * cipherCharacterHeight - 3, 
-						 cipherCharacterWidth - 6, 2, kTypedCursorCharacterColor);
-	}
-	else if(currentCursorHover != -1){
-		DrawColoredQuad( borderWidth + (currentCursorHover % cipherWidthInCharacters) * cipherCharacterWidth, 
-			             borderWidth + (int)(currentCursorHover / cipherWidthInCharacters) * cipherCharacterHeight,
-						 cipherCharacterWidth, cipherCharacterHeight, shadeColor);
-	}
 
-	DrawBorder(cipherBorderWidthTotal, 0, sideBarWidth, typedCharacterHeight + typedBufferPadHeight, borderWidth, kBorderColor);
+
+	DrawBorder(cipherBorderWidthTotal, buttonHeight, sideBarWidth, typedCharacterHeight + typedBufferPadHeight, borderWidth, kBorderColor);
 	const float kTypingLeft = cipherBorderWidthTotal + (typedBufferPadHeight/ 2);
-	const float kTypingTop = (typedBufferPadHeight/ 2);
+	const float kTypingTop = (typedBufferPadHeight/ 2) + buttonHeight;
 
 	int bufferPos = 0;
 	int bufferChar = typingBuffer[bufferPos];
@@ -1073,7 +1197,7 @@ bool CGameBase::ProcessRenderState () {
 				graphics.addRenderNode(tempNode);			
 			}
 			// Draw A line seperating entries
-			DrawColoredQuad( kWordListLeft + borderWidth, ( kWordListTop + count * kWordListEntryHeight) + typedCharacterHeight , kWordListWidth - borderWidth * 2, 2, kWordListSeperatorLineColor);
+			if(count != MAX_WORD_LIST_LENGTH - 1) DrawColoredQuad( kWordListLeft + borderWidth, ( kWordListTop + count * kWordListEntryHeight) + typedCharacterHeight , kWordListWidth - borderWidth * 2, 2, kWordListSeperatorLineColor);
 			++count;
 			++it;
 		}
@@ -1094,13 +1218,35 @@ bool CGameBase::ProcessRenderState () {
 					tempNode.color = kWordListSelectedCharacterColor;
 					graphics.addRenderNode(tempNode);			
 				}
-				DrawColoredQuad( kWordListLeft + borderWidth, ( kWordListTop + count * kWordListEntryHeight) + typedCharacterHeight , kWordListWidth - borderWidth * 2, 2, kWordListSeperatorLineColor);
+				if(count != MAX_WORD_LIST_LENGTH - 1)DrawColoredQuad( kWordListLeft + borderWidth, ( kWordListTop + count * kWordListEntryHeight) + typedCharacterHeight , kWordListWidth - borderWidth * 2, 2, kWordListSeperatorLineColor);
 				++count;
 				++it;
 			}
 #endif
 	}
 
+	//RNL Shaded Square or Word
+	SRenderNodeColor shadeColor = {1.0f,1.0f,1.0f,0.4f};
+	SRenderNodeColor editColor = {0.0f,0.0f,0.0f,1.0f};
+	if( editRandom ){
+		DrawColoredQuad( borderWidth + (currentRandomEdit % cipherWidthInCharacters) * cipherCharacterWidth, 
+			             borderWidth + buttonHeight + (int)(currentRandomEdit / cipherWidthInCharacters) * cipherCharacterHeight,
+						 cipherCharacterWidth, cipherCharacterHeight, editColor);
+		DrawColoredQuad( borderWidth + (currentRandomEdit % cipherWidthInCharacters) * cipherCharacterWidth + 3, 
+			             borderWidth + buttonHeight + (int)((currentRandomEdit / cipherWidthInCharacters) + 1 ) * cipherCharacterHeight - 3, 
+						 cipherCharacterWidth - 6, 2, kTypedCursorCharacterColor);
+	}
+	else if(currentCursorHover != -1){
+		DrawColoredQuad( borderWidth + (currentCursorHover % cipherWidthInCharacters) * cipherCharacterWidth, 
+			             borderWidth + buttonHeight + (int)(currentCursorHover / cipherWidthInCharacters) * cipherCharacterHeight,
+						 cipherCharacterWidth, cipherCharacterHeight, shadeColor);
+	}
+	/*
+	else if(currentWordHover != -1){
+		DrawColoredQuad( borderWidth + kWordListLeft, borderWidth + kWordListTop + currentWordHover * (cipherCharacterHeight),
+						 kWordListWidth - borderWidth * 2, cipherCharacterHeight - 10, shadeColor);
+	}
+	*/
 	
 	//RNL Cipher Image Placement
 	for(int i=0;i<63;i++){
@@ -1117,7 +1263,7 @@ bool CGameBase::ProcessRenderState () {
 			STempRenderNode tempNode;
 			tempNode.textureHandle = alphaTextures[keyMap[i]];
 			if(editRandom && i == cipherText[currentRandomEdit])	tempNode.color = kConflictingCipherColor;
-			else															tempNode.color = kDecodedCipherColor;
+			else													tempNode.color = kDecodedCipherColor;
 			tempNode.pos = D3DXVECTOR3((cipherImageWidth  / 2.0f)+ i * cipherImageWidth, graphics.screenState.screenHeight - cipherImageHeight, 0);
 			tempNode.scale = D3DXVECTOR3(cipherImageWidth, cipherImageHeight, 1);  //RNL Scaled down
 			graphics.addRenderNode(tempNode);
