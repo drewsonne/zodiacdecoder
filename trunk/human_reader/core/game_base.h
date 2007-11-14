@@ -118,6 +118,7 @@ public:
 	EControlFocus focus;
 	std::vector<std::vector<int> > wordList;
 	std::vector<std::vector<int> > keyWordList; //RNL
+	std::vector<int> cipherPos; //RNL
 	int selectionPos;
 	int underlinecounter; //RNL
 	float lastClick; //RNL

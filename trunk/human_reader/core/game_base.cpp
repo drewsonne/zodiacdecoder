@@ -78,6 +78,7 @@ CGameBase::CGameBase() {
 	wordList.clear();
 	wordPos.clear();
 	keyWordList.clear(); //RNL
+	cipherPos.clear(); //RNL
 	savedKeyMap.clear(); //RNL
 	selectionPos = -1;  //RNL
 	Dictionary.clear();  //RNL
@@ -105,6 +106,7 @@ CGameBase::~CGameBase() {
 	currentKeyMap.clear();
 	conflictingKeyMap.clear();
 	keyWordList.clear(); //RNL
+	cipherPos.clear(); //RNL
 	savedKeyMap.clear(); //RNL
 	Dictionary.clear(); //RNL
 }
@@ -438,6 +440,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 				for(int i = 0; i < 63; i++){
 					savedKeyMap[i] = keyMap[i];
 				}
+				for(int i = 0; i < 17; i++) typingBuffer[i] = -1;
 			} else {
 				focus = FOCUS_RANDOM;
 				if(firstRandom){
@@ -641,7 +644,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			   (ap.y < (borderWidth + kWordListTop + (i+1) * cipherCharacterHeight)))
 			{
 				if(focus == FOCUS_RANDOM && i >= keyWordList.size()) break;
-				else if( i >= wordList.size()) break;
+				else if(focus != FOCUS_RANDOM && i >= wordList.size()) break;
 				currentWordHover = i;
 				if (focus == FOCUS_SELECTION) selectionPos = i;
 				if (mouseState.rgbButtons[0] && focus != FOCUS_RANDOM) 
@@ -656,6 +659,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			}
 		}
 	}
+	else currentWordHover = -1;
 
 	static bool keyDown = false;
 
@@ -695,6 +699,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			for(int i = 0; i < 63; i++){
 				savedKeyMap[i] = keyMap[i];
 			}
+			for(int i = 0; i < 17; i++) typingBuffer[i] = -1;
 		} else {
 			focus = FOCUS_RANDOM;
 			if(firstRandom){
@@ -1198,6 +1203,44 @@ bool CGameBase::ProcessRenderState () {
 	const float kTypingTop = (typedBufferPadHeight/ 2) + buttonHeight;
 
 	int bufferPos = 0;
+	int spacePos = -1;
+	if(focus == FOCUS_RANDOM){ //RNL Word Count, this will erase the typing buffer on random key focus
+		for(int i = 0; i < 17; i++) typingBuffer[i] = -1;
+		int totalWords = keyWordList.size();
+		int tkWords = totalWords/10000; //Most likely impossible, mostly a failsafe
+		int kWords = totalWords/1000; //Very unlikely
+		int hWords = totalWords/100; //Will happen on a good key
+		int tWords = totalWords/10; 
+		int oWords = totalWords%10;
+		if(tkWords > 0) {
+			typingBuffer[bufferPos++] = tkWords + 25;
+		}
+		if(kWords > 0 || tkWords > 0) {
+			if(kWords != 0)	typingBuffer[bufferPos++] = kWords + 25;
+			else typingBuffer[bufferPos++] = 35;
+		}
+		if(hWords > 0 || kWords > 0 || tkWords > 0) {
+			if(hWords != 0)	typingBuffer[bufferPos++] = hWords + 25;
+			else typingBuffer[bufferPos++] = 35;
+		}
+		if(tWords > 0 || hWords > 0 || kWords > 0 || tkWords > 0) {
+			if(tWords != 0)	typingBuffer[bufferPos++] = tWords + 25;
+			else typingBuffer[bufferPos++] = 35;
+		}
+		if(oWords != 0)	typingBuffer[bufferPos++] = oWords + 25;
+		else typingBuffer[bufferPos++] = 35;
+
+		//Add a useless character for a space, then add "words"
+		spacePos = bufferPos;
+		typingBuffer[bufferPos++] = 0;
+		typingBuffer[bufferPos++] = 22;
+		typingBuffer[bufferPos++] = 14;
+		typingBuffer[bufferPos++] = 17;
+		typingBuffer[bufferPos++] = 3;
+		typingBuffer[bufferPos] = 18;
+
+	}
+	bufferPos = 0;
 	int bufferChar = typingBuffer[bufferPos];
 	while(bufferChar >= 0 && bufferChar <= 35 && bufferPos < MAX_TYPING_BUFFER) {
 		STempRenderNode tempNode;
@@ -1223,6 +1266,11 @@ bool CGameBase::ProcessRenderState () {
 	}
 	if(underlinecounter >= 30){
 		underlinecounter = 0;
+	}
+	if(spacePos != -1){
+		SRenderNodeColor SpaceColor = {0.0f,0.0f,0.0f,1.0f};
+		DrawColoredQuad( kTypingLeft + spacePos * typedCharacterWidth, kTypingTop, 
+						 typedCharacterWidth, typedCharacterHeight, SpaceColor);
 	}
 
 //RNL changed this to display two different word lists depending on focus
@@ -1273,7 +1321,7 @@ bool CGameBase::ProcessRenderState () {
 #endif
 	}
 
-	//RNL Shaded Square or Word
+	//RNL Shaded Squares and Word
 	SRenderNodeColor shadeColor = {1.0f,1.0f,1.0f,0.4f};
 	SRenderNodeColor editColor = {0.0f,0.0f,0.0f,1.0f};
 	if( editRandom ){
@@ -1289,12 +1337,22 @@ bool CGameBase::ProcessRenderState () {
 			             borderWidth + buttonHeight + (int)(currentCursorHover / cipherWidthInCharacters) * cipherCharacterHeight,
 						 cipherCharacterWidth, cipherCharacterHeight, shadeColor);
 	}
-	/*
-	else if(currentWordHover != -1){
+	else if(currentWordHover != -1 && focus == FOCUS_RANDOM){
+		//Highlight Word on List
 		DrawColoredQuad( borderWidth + kWordListLeft, borderWidth + kWordListTop + currentWordHover * (cipherCharacterHeight),
 						 kWordListWidth - borderWidth * 2, cipherCharacterHeight - 10, shadeColor);
+			//Highlight Word on Cipher
+			std::vector<std::vector<int> >::iterator it = keyWordList.begin();
+			std::vector<int>::iterator pt = cipherPos.begin();
+	
+			for(int j = 0; (j < currentWordHover + currentScrollPos) && (it != keyWordList.end()); j++) {++it; ++pt;}
+			for (int i = 0; i < (*it).size(); i++) { //(*pt) was listedWord
+				DrawColoredQuad( borderWidth + (((*pt)+i) % cipherWidthInCharacters) * cipherCharacterWidth, 
+					 borderWidth + buttonHeight + (int)(((*pt)+i) / cipherWidthInCharacters) * cipherCharacterHeight,
+					 cipherCharacterWidth, cipherCharacterHeight, shadeColor);		
+			}
 	}
-	*/
+
 	
 	//RNL Cipher Image Placement
 	for(int i=0;i<63;i++){
@@ -1428,6 +1486,7 @@ void CGameBase::makeNewKeyWordList(){
     fout.open("test.txt", std::ios::out);
 	int stringcount = 0;
 	keyWordList.clear();
+	cipherPos.clear();
 
 	string solution = "";
 	string word = "";
@@ -1443,6 +1502,7 @@ void CGameBase::makeNewKeyWordList(){
 			word = solution.substr(c, s);
 			if(Dictionary.GetWordScore(Dictionary, word) != 0) {
 				CopyKeyWordToKeyWordList(word);
+				cipherPos.push_back(c);
 				fout << stringcount++ << ": " << word << std::endl;
 				fout << keyWordList.size() << std::endl;
 			}
