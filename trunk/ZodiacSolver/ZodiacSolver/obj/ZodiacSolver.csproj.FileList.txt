@@ -1,8 +1,0 @@
-bin\Debug\ZodiacSolver.exe
-bin\Debug\ZodiacSolver.pdb
-obj\Debug\ResolveAssemblyReference.cache
-obj\Debug\ZodiacSolver.Form1.resources
-obj\Debug\ZodiacSolver.Properties.Resources.resources
-obj\Debug\ZodiacSolver.csproj.GenerateResource.Cache
-obj\Debug\ZodiacSolver.exe
-obj\Debug\ZodiacSolver.pdb
