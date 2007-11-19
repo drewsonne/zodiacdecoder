@@ -7,7 +7,7 @@
 #include "ScrambleClass.h"
 #include "Client.h"
 
-#define THRESHOLD 5.0
+#define THRESHOLD 85.0
 
 using namespace std;
 using namespace System;
