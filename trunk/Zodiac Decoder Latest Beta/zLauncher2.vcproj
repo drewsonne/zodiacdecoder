@@ -58,7 +58,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(NoInherit)"
+				AdditionalDependencies="$(NoInherit) ws2_32.lib mswsock.lib advapi32.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				AssemblyDebug="1"
