@@ -7,7 +7,7 @@
 #include "ScrambleClass.h"
 #include "Client.h"
 
-#define THRESHOLD 85.0
+#define THRESHOLD 5.0
 
 using namespace std;
 using namespace System;
@@ -84,7 +84,27 @@ namespace zLauncher2
 
 		if(temp_score >= THRESHOLD)
 		{
-			if(sendToServer("zodiacdecoder.dyndns.org", "10000", (char*)KeyStream->c_str()))
+			char* tmpSol = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+			
+			tmpSol = (char*)KeyStream->c_str();
+
+			if(ga_running)
+			{
+				tmpSol[63] = 'g';
+			}	
+			if(ibf_running)
+			{
+				tmpSol[63] = 'i';
+			}
+			if(rndm_running)
+			{
+				tmpSol[63] = 'r';
+			}
+			if(scram_running)
+			{
+				tmpSol[63] = 's';
+			}
+			if(sendToServer("zodiacdecoder.dyndns.org", "10000", tmpSol))
 			{
 				ofstream fout;
 				fout.open("KeysNotSent.txt", ios::app);
@@ -93,6 +113,7 @@ namespace zLauncher2
 				fout.close();
 					//Do something if it fails
 			}
+		
 		}
 	}
 

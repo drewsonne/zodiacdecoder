@@ -824,7 +824,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 	if (input.IsKeyDown(DIK_F7)) {
 		if (focus == FOCUS_RANDOM) {
 			serverKeys="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-			char serverTmp[] = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+			char serverTmp[] = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaac";
 			char* servername = "zodiacdecoder.dyndns.org"; //Server Name
 			//Note: KeyMap is a vector of ints, so you can't use that directly
 			HWND hwnd2 = GetActiveWindow();
@@ -832,7 +832,7 @@ bool CGameBase::ProcessInputFrame (float dT) {
 			std::ofstream foutq;
 			foutq.open("key.out", std::ios::out);
 			if (getKeysFromServer(serverTmp)==0){
-				for(int i=0; i < 63; i++){
+				for(int i=0; i < 64; i++){
 					foutq << serverTmp[i];
 				}
 			

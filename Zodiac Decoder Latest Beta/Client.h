@@ -15,7 +15,7 @@
 //Need to figure out the DEFAULT_BUFLEN still. umm. I think it would be 63 or 64 by default.
 //If I remember right, it does not count the null terminator. So, 63 should be fine.
 //#define NUM_KEYS 10
-#define DEFAULT_BUFLEN 63
+#define DEFAULT_BUFLEN 64
 #define DEFAULT_PORT "10001"
 
 //keys is a 2-dimensional array passed by reference
@@ -119,7 +119,7 @@ int getKeysFromServer(char* keys)
         iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
 		//printf("%s %d", recvbuf,63);
 		if ( iResult > 0 ){
-			for(int i = 0; i < 63; i++){
+			for(int i = 0; i < 64; i++){
 				keys[i] = recvbuf[i];
 			}
 		}
@@ -140,7 +140,7 @@ int getKeysFromServer(char* keys)
 int sendToServer(char* server, char* port, char* sendbuf)
 {
 	char* sendVoteBuf = new char[64]();
-	for(int i = 0; i < 63; i++)
+	for(int i = 0; i < 64; i++)
 		sendVoteBuf[i] = sendbuf[i];
 
     WSADATA wsaData;
@@ -206,7 +206,7 @@ int sendToServer(char* server, char* port, char* sendbuf)
     }
 
     // Send the key to server.
-    iResult = send( ConnectSocket, sendVoteBuf, 63, 0 );
+    iResult = send( ConnectSocket, sendVoteBuf, 64, 0 );
     if (iResult == SOCKET_ERROR) {
         printf("send failed: %d\n", WSAGetLastError());
         closesocket(ConnectSocket);

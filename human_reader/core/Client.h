@@ -15,7 +15,7 @@
 //Need to figure out the DEFAULT_BUFLEN still. umm. I think it would be 63 or 64 by default.
 //If I remember right, it does not count the null terminator. So, 63 should be fine.
 #define NUM_KEYS 1
-#define DEFAULT_BUFLEN 63
+#define DEFAULT_BUFLEN 64
 #define DEFAULT_PORT "10001"
 
 //keys is a 2-dimensional array passed by reference
@@ -115,12 +115,11 @@ int getKeysFromServer(char* keys)
         // still need to figure out what to do with the keys. Should we use a stack, a linked list, or just an array
         // and have the server send a number stating the number of keys it will be sending. Should be fairly straight
         // forward though.
-        iResult = recv(ConnectSocket, recvbuf, 63, 0);
+        iResult = recv(ConnectSocket, recvbuf, 64, 0);
 		//printf("%s %d \n", recvbuf,63);
-		for(int i = 0; i < 63; i++)
-			//printf("%c",recvbuf[i]);
+		
 		if ( iResult > 0 ){
-			for(int i = 0; i < 63; i++)
+			for(int i = 0; i < 64; i++)
 			{
 				keys[i] = recvbuf[i];
 			}
@@ -150,7 +149,7 @@ int getKeysFromServer1(char* keys)
     char *sendbuf = "9";
     char recvbuf[DEFAULT_BUFLEN];
     int iResult;
-    int recvbuflen = DEFAULT_BUFLEN * NUM_KEYS;
+    int recvbuflen = DEFAULT_BUFLEN;
 // Server name goes here!
     char *serverName="localhost";
     

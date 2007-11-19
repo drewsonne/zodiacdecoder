@@ -126,16 +126,16 @@ int serve(char* a, char* portNum, unsigned long c)
 
     // Receive until the peer shuts down the connection
     do {
-		char tmp[63];
+		char tmp[64];
         iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
         if (iResult > 0) {
             printf("Bytes received: %d\n", iResult);
-			for(int i = 0; i < 63; i++){
+			for(int i = 0; i < 64; i++){
 				tmp[i] = recvbuf[i];
 				//printf("%c", tmp[i]);
 			}
 			printf("\n");
-			writeToFile(tmp, 63, a);
+			writeToFile(tmp, 64, a);
 			writeToFile(c,"numkeys.txt"); 
 
 		}
@@ -246,16 +246,16 @@ int serveKeys(char* filename, char* portNum, unsigned long keysAlreadySent)
         if (iResult > 0) {
             printf("Bytes received: %d\n", iResult);
 			if(recvbuf[0] == '9'){
-				char tmp[63];
+				char tmp[64];
 				ifstream fin(filename, ios::in);
 				for(unsigned long i = 0; i < keysAlreadySent; i++)
 				{
-					for(int j = 0; j < 63; j++)
+					for(int j = 0; j < 64; j++)
 						fin >> tmp[j];
 				}
-				for(int k = 0; k < 63; k++)
+				for(int k = 0; k < 64; k++)
 					fin >> tmp[k];
-				iSendResult = send( ClientSocket, tmp, 63, 0 );
+				iSendResult = send( ClientSocket, tmp, 64, 0 );
 				fin.close();
 				printf("Bytes sent: %d\n", iSendResult);
 			}
