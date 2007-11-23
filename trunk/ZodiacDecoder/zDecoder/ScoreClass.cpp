@@ -289,8 +289,6 @@ float ScoreClass::ScoreSolution(string solution)
 		letterScore = letterScore - fabs(letterFreqs[l] - cipherFreqs[l]);
 	}
 
-	//cout<<"W: "<<wordScore<<" L: "<<letterScore<<" N: "<<nGraphScore<<endl;
-	
 	//calculate total score
 	totalScore = (nGraphScore * 0.33333) + (wordScore * 0.33333) + (letterScore * 0.33333);
 

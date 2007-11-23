@@ -1,10 +1,7 @@
 #include "stdafx.h"
 #include "RandomSearch.h"
 
-//using namespace std;
-
-//stringstream KeyStream (stringstream::in | stringstream::out);
-//string stdkey;
+using namespace std;
 
 RandomSearch::RandomSearch(string *keystream):Solver(keystream)
 {
