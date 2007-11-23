@@ -1,12 +1,9 @@
 // scoreClass.h
 // header file for scoring algorithm class
 
-// file requirements:
-//   scoreClass.cpp
 #pragma once
 #include "stdafx.h"
 #include "hash_table.h"
-//#include "Client.h"
 #define MAX_WORD_SCORE 101
 using namespace std;
 
