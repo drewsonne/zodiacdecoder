@@ -1,7 +1,7 @@
 /*
 
  An EM Algorithm for deciphering the Zodiac-340 cipher
- Algorithm: Kevin Knight
+ Algorithm: Kevin Knight from "Decoding Complexity in Word-Replacement Translation Models
  Most Code: Harold Myles
  Some Code: Ryan Garlick
 
