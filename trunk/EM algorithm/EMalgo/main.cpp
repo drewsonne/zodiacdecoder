@@ -7,6 +7,23 @@
 
 */
 
+/*
+
+Problems (Search for Problem1, Problem2, ... in the code)
+---------------------------------------------------------
+
+Problem1: At the bottom of p.2. in "Decoding Complexity..." it reads "once the s(f|e) table
+has been learned, there is a similar O(mv^2) algorithm for optimal decoding.
+
+Problem2: The Q and R tables converge to zero in the second EM iteration from the multiplications
+in the inner-most for loops in the forward and reverse pass.
+
+Problem3: Uncertainty about how to properly implement the last line in the algorithm:
+"Normalize c(f|e) table to create a revised s(f|e)
+
+*/
+
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -70,7 +87,7 @@ struct SSolutionTable {
 	}
 
 	// The most naive way of chosing a key from the table.
-	// Don't use this.
+	// Don't use this. Problem1
 	void getHighestProbableKeyPerColumn(SKey &key) {
 
 		for (int i = 0; i < kMaxCipherChar; i++) {
@@ -92,7 +109,7 @@ struct SSolutionTable {
 
 	// This method isn't too good either.  We not only force every alpha character to be mapped, but mapped twice.
 	// There is no good assumption that all alpha characters will be represented in the cipher. Does the 340 cipher have
-	// a letter 'Q'?
+	// a letter 'Q'? Problem1
 
 	bool getHighestProbableKey(SKey &key) {
 		//First we go through each alpha character and chose the map it to the column with highest prob.
@@ -244,6 +261,7 @@ bool EMalgo (const SBModel &model, const SCipher &cipher, SSolutionTable &initia
 			for (int i = 0; i < kMaxAlphaChar; i++) {
 				F[i][j] = 0.0f;
 				for (int k = 0; k < kMaxAlphaChar; k++) {
+					// Problem2
 					F[i][j] += F[k][j-1] * model.model[k][i] * initialSolutionTable.prob[k][cipher.cipherText[j-1]];
 				}
 			}
@@ -261,6 +279,7 @@ bool EMalgo (const SBModel &model, const SCipher &cipher, SSolutionTable &initia
 			for (int b = 0; b < kMaxAlphaChar; b++) {
 				R[b][a] = 0.0f;
 				for (int c = 0; c < kMaxAlphaChar; c++) {
+					// Problem2
 					R[b][a] += R[c][a+1] * model.model[b][c] * initialSolutionTable.prob[c][cipher.cipherText[a+1]];
 				}
 			}
@@ -301,7 +320,7 @@ bool EMalgo (const SBModel &model, const SCipher &cipher, SSolutionTable &initia
 			}
 		}
 	
-		// use returnSolutionTable to modify initSolutionTable
+		// Problem3: use returnSolutionTable to modify initSolutionTable
 		for (int i = 0; i < kMaxCipherChar; i++) {
 			for (int j = 0; j < kMaxAlphaChar; j++) {
 				initialSolutionTable.prob[j][i] *= returnSolutionTable.prob[j][i];
