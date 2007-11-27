@@ -1,3 +1,12 @@
+/*
+
+ An EM Algorithm for deciphering the Zodiac-340 cipher
+ Algorithm: Kevin Knight
+ Most Code: Harold Myles
+ Some Code: Ryan Garlick
+
+*/
+
 #include <iostream>
 #include <fstream>
 #include <string>
