@@ -1,0 +1,40 @@
+
+
+
+Existing Tools 
+
+
+
+
+Ciphers of every variation span the gamut of human history and use. Mostly they were used for military and political reasons for the purpose of secrecy. In modern times, they have taken on the guise of a murderer trying to prove his superiority over law enforcement. The Zodiac Killer utilized the homophonic cipher variant to taunt police with his name and vignette, but has also left one best known ciphers in his wake. To this day, no credible solution exists, but history has provided many tools to cryptologists for breaking such codes. These are frequency analysis of symbols and letters, bi- and trigram recognition, and the identification of “cribs.” 
+
+
+Frequency analysis dates back to al-Kindi, an Arabic scholar that used the technique to analyze religious texts to validate the works of Mohammad. Its use states that for any given language, there will be a frequency that each letter will appear. This is an interesting challenge for the Zodiac 340-cipher, as the Zodiac Killer was fond of miss-spelling words in his documents. To have an accurate frequency chart, we took all published correspondence that the Zodiac Killer gave to the newspapers and police, <insert source of documents; either the book or zodiac.com > and transcribing then to a digital format. This allows us to see what the frequency of letters is for his work, and includes other benefits that are discussed below. 
+
+
+This analysis becomes more difficult because of his use of a homophonic cipher. The typical strategy involves taking the frequency percentages, and using a number of symbols equal to the percentage of every letter. For example, the letter “e” in English is used approximately 12% of the time. Thus, twelve different symbols should be used. When properly used, this reduces the frequency of each letter to 1% for the cipher text. 
+
+
+In his previous cipher, the Zodiac Killer used seven symbols for the letter “e” alone. However, many other letters were left with either one or two symbols. This opened up his cipher to be analyzed for bi- and tri-grams that are common to his writing. We mentioned above that we placed his writing into a digital format, which allowed us to analyze the frequency of his letter usage. It also allowed us to find all the common bi- and trigrams that he used. Many of his bigrams were identified in his original cipher because of his use of words like “kill” and “killing” that used a double “l”, while he only used two symbols to represent the letter “l”. This caused the two symbols for “l” to appear next to each other frequently. By analyzing his previous work, we can tag many of the potential bi- and trigrams inherent to his writing style, and use it to identify the possible places for words in his 340-cipher. 
+
+
+Finally, we looked for “cribs”, or common words used for a given group or subject, in his works. For the Zodiac Killer, he talks mainly about collecting “slaves” and how he enjoys “killing,” including his misspelling of words like “Christmass” and “Fry” for Friday, are all signatures of his. If we can identify where these words are likely to show up, then we will be farther along in our solving of the 340-cipher. 
+
+
+In our attempt, we also looked at other algorithmic methods to utilize computers to do the majority of the work for us. We reviewed two methods in particular, those of Brax Cisco and Kevin Knight. The method from Brax Cisco utilizes a Hillclimber algorithm to enter a solution key for the cipher text that is either developed by guesswork or generated randomly. It then takes the generated solution for the given key and scores it based on a preloaded set of bi-, tri-, tetra-, and pentagraphs common to the English language. If the resulting score is better than the previous best score, then performs a shuffle on the key (exchanging the value of two characters in the key randomly) and then performs another solution and scoring on the new variation of the key. If the new key scores higher, it replaces the older key and runs through the algorithm again by switching another pair and comparing the new key against the saved one. 
+
+
+<Add in a description of how we used and changed this algorithm to our use.> 
+
+
+Kevin Knight's work 
+
+
+http://www.vectorsite.net/ttcode_01.html#m1 ; as of 11/26/2007 
+
+
+Since there are 63 unique symbols used in the 340-cipher, his previous use of homophonic substitution ciphers, and the lack of anything that would mark it as any other type of code or cipher, we went on the assumption that this was indeed another homophonic substitution cipher. 
+
+
+
+
