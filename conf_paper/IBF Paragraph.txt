@@ -1,0 +1,14 @@
+The Intelligent Brute Force or IBF algorithm is a random solution generator for a given poly-alphabetic substitution cipher.  It uses parameters provided by an n-gram frequency analysis of English written texts to attempt a more accurate modeling of the English language.  [(For more information on frequency analysis, see the Natural Language Processing portion of this document)]  
+
+IBF uses six hard-coded constant parameters (2 strings and 4 integers).  The two strings represent the names of .txt files containing the n-gram/frequency list, and the target cipher.  T (for tokens) represents the sum of all n-gram frequency counts.  C (for cipher) represents the size of, or number of symbols in, the target cipher.  K (for key) represents the number of unique symbols in the cipher, and subsequently, the size of the key.  N (for n-grams) indicates the size, or character length of the n-grams.
+
+IBF begins by initializing the Token[String] array from the text file of n-gram tokens and integer frequency counts.  Each n-gram is then stored in an array of size T and occupies the same number of cells as its respective frequency count.  
+
+Next, IBF initializes the Cipher[int] array, from the cipher text file.  This text file needs to represent the cipher as a series of integers from 0 to K.
+
+Note: The following procedure should be looped to produce a constant stream of potential solutions (hence the name “Brute Force”). 
+An array Key[char] represents the current solution key and must be initialized to all ‘*’ (asterisk).  Until there are no more asterisks in Key[], the following operations will loop. Using a random number between 0 and T-1, a token is selected from the Token[] array.  This token then attempts to “fit” in each position of the cipher until it is successful or runs out of space in the cipher.  
+
+The conditions of a successful “fit” are as follows:  1.) Each character of the token can only be placed in an empty (‘*’) Key[] position, or a position occupied by the same letter.  2.) A token must not be placed on top of the exact same token (this is to avoid stemming repetition).  An example is that the token “THE” can be place into positions represented by “***” or “T**” but not into “H**” or “THE”.
+
+Once Key[] is “full” (all ‘*’ have been replaced with characters), the key, or the solution may be outputted, the algorithm may reset Key[] and find another solution.
