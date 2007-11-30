@@ -251,19 +251,15 @@ namespace zLauncher2
 	
 	private: System::Windows::Forms::Timer^  timer1;
 	private: System::Windows::Forms::Button^  resetGA;
-	public: System::Windows::Forms::NotifyIcon^  sysTrayIcon;
-	private: 
 
 
-
-
-
-
-
-
-
-
-
+	private: System::Windows::Forms::NotifyIcon^  notifyIcon1;
+	private: System::Windows::Forms::MenuStrip^  menuStrip1;
+	private: System::Windows::Forms::ToolStripMenuItem^  fileToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  exitToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  helpToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  aboutToolStripMenuItem;
+	private: System::Windows::Forms::ToolStripMenuItem^  creditsToolStripMenuItem;
 	private: System::Windows::Forms::Button^  printButton;
 	private: System::Windows::Forms::TextBox^  scramKeysBox;
 	private: System::Windows::Forms::Label^  label5;
@@ -272,15 +268,6 @@ namespace zLauncher2
 	private: System::Windows::Forms::TextBox^  ibfKeysBox;
 	private: System::Windows::Forms::Label^  label10;
 	private: System::Windows::Forms::PictureBox^  pictureBox1;
-	private: System::Windows::Forms::ToolStripMenuItem^  fileToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  exitToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  helpToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  aboutToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  creditsToolStripMenuItem;
-	private: System::Windows::Forms::ToolStripMenuItem^  minimizeToolStripMenuItem;
-	private: System::Windows::Forms::MenuStrip^  menuStrip1;
-
-
 
 
 
@@ -304,8 +291,6 @@ namespace zLauncher2
 			scrambler = new ScrambleClass(KeyStream);
 		}
 
-		
-
 	protected:
 		/// <summary>
 		/// Clean up any resources being used.
@@ -318,6 +303,8 @@ namespace zLauncher2
 			}
 		}
 	private: System::Windows::Forms::Button^  randomButton;
+	
+	protected: 
 	private: System::Windows::Forms::TextBox^  outBox;
 	private: System::Windows::Forms::Button^  closeButton;
 	private: System::Windows::Forms::Label^  label1;
@@ -379,7 +366,13 @@ namespace zLauncher2
 			this->progressBar = (gcnew System::Windows::Forms::ProgressBar());
 			this->timer1 = (gcnew System::Windows::Forms::Timer(this->components));
 			this->resetGA = (gcnew System::Windows::Forms::Button());
-			this->sysTrayIcon = (gcnew System::Windows::Forms::NotifyIcon(this->components));
+			this->notifyIcon1 = (gcnew System::Windows::Forms::NotifyIcon(this->components));
+			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
+			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->helpToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->aboutToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
+			this->creditsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->printButton = (gcnew System::Windows::Forms::Button());
 			this->scramKeysBox = (gcnew System::Windows::Forms::TextBox());
 			this->label5 = (gcnew System::Windows::Forms::Label());
@@ -388,15 +381,8 @@ namespace zLauncher2
 			this->ibfKeysBox = (gcnew System::Windows::Forms::TextBox());
 			this->label10 = (gcnew System::Windows::Forms::Label());
 			this->pictureBox1 = (gcnew System::Windows::Forms::PictureBox());
-			this->fileToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->exitToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->helpToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->aboutToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->creditsToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->minimizeToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->BeginInit();
 			this->menuStrip1->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// randomButton
@@ -721,11 +707,67 @@ namespace zLauncher2
 			this->resetGA->UseVisualStyleBackColor = true;
 			this->resetGA->Click += gcnew System::EventHandler(this, &Form1::resetGA_Click);
 			// 
-			// sysTrayIcon
+			// notifyIcon1
 			// 
-			this->sysTrayIcon->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"sysTrayIcon.Icon")));
-			this->sysTrayIcon->Text = L"ZodiacDecoder";
-			this->sysTrayIcon->MouseDoubleClick += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::notifyIcon1_MouseDoubleClick);
+			this->notifyIcon1->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"notifyIcon1.Icon")));
+			this->notifyIcon1->Text = L"notifyIcon1";
+			this->notifyIcon1->Visible = true;
+			this->notifyIcon1->MouseDoubleClick += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::notifyIcon1_MouseDoubleClick);
+			// 
+			// menuStrip1
+			// 
+			this->menuStrip1->BackColor = System::Drawing::Color::Black;
+			this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->fileToolStripMenuItem, 
+				this->helpToolStripMenuItem});
+			this->menuStrip1->Location = System::Drawing::Point(0, 0);
+			this->menuStrip1->Name = L"menuStrip1";
+			this->menuStrip1->Size = System::Drawing::Size(792, 24);
+			this->menuStrip1->TabIndex = 26;
+			this->menuStrip1->Text = L"menuStrip1";
+			// 
+			// fileToolStripMenuItem
+			// 
+			this->fileToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->exitToolStripMenuItem});
+			this->fileToolStripMenuItem->ForeColor = System::Drawing::Color::White;
+			this->fileToolStripMenuItem->Name = L"fileToolStripMenuItem";
+			this->fileToolStripMenuItem->Size = System::Drawing::Size(35, 20);
+			this->fileToolStripMenuItem->Text = L"&File";
+			// 
+			// exitToolStripMenuItem
+			// 
+			this->exitToolStripMenuItem->BackColor = System::Drawing::SystemColors::ControlText;
+			this->exitToolStripMenuItem->ForeColor = System::Drawing::Color::White;
+			this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
+			this->exitToolStripMenuItem->Size = System::Drawing::Size(103, 22);
+			this->exitToolStripMenuItem->Text = L"E&xit";
+			this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::exitToolStripMenuItem_Click);
+			// 
+			// helpToolStripMenuItem
+			// 
+			this->helpToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->aboutToolStripMenuItem, 
+				this->creditsToolStripMenuItem});
+			this->helpToolStripMenuItem->ForeColor = System::Drawing::Color::White;
+			this->helpToolStripMenuItem->Name = L"helpToolStripMenuItem";
+			this->helpToolStripMenuItem->Size = System::Drawing::Size(40, 20);
+			this->helpToolStripMenuItem->Text = L"H&elp";
+			// 
+			// aboutToolStripMenuItem
+			// 
+			this->aboutToolStripMenuItem->BackColor = System::Drawing::SystemColors::ControlText;
+			this->aboutToolStripMenuItem->ForeColor = System::Drawing::Color::White;
+			this->aboutToolStripMenuItem->Name = L"aboutToolStripMenuItem";
+			this->aboutToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->aboutToolStripMenuItem->Text = L"Abo&ut";
+			this->aboutToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::aboutToolStripMenuItem_Click);
+			// 
+			// creditsToolStripMenuItem
+			// 
+			this->creditsToolStripMenuItem->BackColor = System::Drawing::SystemColors::ControlText;
+			this->creditsToolStripMenuItem->ForeColor = System::Drawing::Color::White;
+			this->creditsToolStripMenuItem->Name = L"creditsToolStripMenuItem";
+			this->creditsToolStripMenuItem->Size = System::Drawing::Size(152, 22);
+			this->creditsToolStripMenuItem->Text = L"C&redits";
+			this->creditsToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::creditsToolStripMenuItem_Click);
 			// 
 			// printButton
 			// 
@@ -819,69 +861,6 @@ namespace zLauncher2
 			this->pictureBox1->TabIndex = 34;
 			this->pictureBox1->TabStop = false;
 			// 
-			// fileToolStripMenuItem
-			// 
-			this->fileToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) {this->exitToolStripMenuItem});
-			this->fileToolStripMenuItem->ForeColor = System::Drawing::Color::White;
-			this->fileToolStripMenuItem->Name = L"fileToolStripMenuItem";
-			this->fileToolStripMenuItem->Size = System::Drawing::Size(35, 20);
-			this->fileToolStripMenuItem->Text = L"&File";
-			// 
-			// exitToolStripMenuItem
-			// 
-			this->exitToolStripMenuItem->BackColor = System::Drawing::SystemColors::ControlText;
-			this->exitToolStripMenuItem->ForeColor = System::Drawing::Color::White;
-			this->exitToolStripMenuItem->Name = L"exitToolStripMenuItem";
-			this->exitToolStripMenuItem->Size = System::Drawing::Size(103, 22);
-			this->exitToolStripMenuItem->Text = L"E&xit";
-			this->exitToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::exitToolStripMenuItem_Click);
-			// 
-			// helpToolStripMenuItem
-			// 
-			this->helpToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {this->aboutToolStripMenuItem, 
-				this->creditsToolStripMenuItem});
-			this->helpToolStripMenuItem->ForeColor = System::Drawing::Color::White;
-			this->helpToolStripMenuItem->Name = L"helpToolStripMenuItem";
-			this->helpToolStripMenuItem->Size = System::Drawing::Size(40, 20);
-			this->helpToolStripMenuItem->Text = L"H&elp";
-			// 
-			// aboutToolStripMenuItem
-			// 
-			this->aboutToolStripMenuItem->BackColor = System::Drawing::SystemColors::ControlText;
-			this->aboutToolStripMenuItem->ForeColor = System::Drawing::Color::White;
-			this->aboutToolStripMenuItem->Name = L"aboutToolStripMenuItem";
-			this->aboutToolStripMenuItem->Size = System::Drawing::Size(119, 22);
-			this->aboutToolStripMenuItem->Text = L"Abo&ut";
-			this->aboutToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::aboutToolStripMenuItem_Click);
-			// 
-			// creditsToolStripMenuItem
-			// 
-			this->creditsToolStripMenuItem->BackColor = System::Drawing::SystemColors::ControlText;
-			this->creditsToolStripMenuItem->ForeColor = System::Drawing::Color::White;
-			this->creditsToolStripMenuItem->Name = L"creditsToolStripMenuItem";
-			this->creditsToolStripMenuItem->Size = System::Drawing::Size(119, 22);
-			this->creditsToolStripMenuItem->Text = L"C&redits";
-			this->creditsToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::creditsToolStripMenuItem_Click);
-			// 
-			// minimizeToolStripMenuItem
-			// 
-			this->minimizeToolStripMenuItem->ForeColor = System::Drawing::SystemColors::ActiveCaptionText;
-			this->minimizeToolStripMenuItem->Name = L"minimizeToolStripMenuItem";
-			this->minimizeToolStripMenuItem->Size = System::Drawing::Size(96, 20);
-			this->minimizeToolStripMenuItem->Text = L"Minimize to Tray";
-			this->minimizeToolStripMenuItem->Click += gcnew System::EventHandler(this, &Form1::minimizeToolStripMenuItem_Click);
-			// 
-			// menuStrip1
-			// 
-			this->menuStrip1->BackColor = System::Drawing::Color::Black;
-			this->menuStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {this->fileToolStripMenuItem, 
-				this->helpToolStripMenuItem, this->minimizeToolStripMenuItem});
-			this->menuStrip1->Location = System::Drawing::Point(0, 0);
-			this->menuStrip1->Name = L"menuStrip1";
-			this->menuStrip1->Size = System::Drawing::Size(800, 24);
-			this->menuStrip1->TabIndex = 26;
-			this->menuStrip1->Text = L"menuStrip1";
-			// 
 			// Form1
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -890,7 +869,7 @@ namespace zLauncher2
 			this->BackColor = System::Drawing::Color::Black;
 			this->BackgroundImage = (cli::safe_cast<System::Drawing::Image^  >(resources->GetObject(L"$this.BackgroundImage")));
 			this->BackgroundImageLayout = System::Windows::Forms::ImageLayout::Center;
-			this->ClientSize = System::Drawing::Size(800, 600);
+			this->ClientSize = System::Drawing::Size(792, 573);
 			this->Controls->Add(this->pictureBox1);
 			this->Controls->Add(this->label10);
 			this->Controls->Add(this->ibfKeysBox);
@@ -924,7 +903,6 @@ namespace zLauncher2
 			this->Controls->Add(this->randomButton);
 			this->Controls->Add(this->zodiacDecoderButton);
 			this->Controls->Add(this->menuStrip1);
-			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::None;
 			this->Icon = (cli::safe_cast<System::Drawing::Icon^  >(resources->GetObject(L"$this.Icon")));
 			this->MainMenuStrip = this->menuStrip1;
 			this->MaximumSize = System::Drawing::Size(800, 600);
@@ -933,9 +911,9 @@ namespace zLauncher2
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Zodiac Decoder";
 			this->Load += gcnew System::EventHandler(this, &Form1::Form1_Load);
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->EndInit();
 			this->menuStrip1->ResumeLayout(false);
 			this->menuStrip1->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^  >(this->pictureBox1))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -1228,30 +1206,6 @@ private: System::Void timer1_Tick(System::Object^  sender, System::EventArgs^  e
 						
 					bestScoreBox->Clear();
 					bestScoreBox->AppendText(best_score.ToString());
-
-					// balloon score tool tip
-					if (best_score > 20)
-					{
-						sysTrayIcon->BalloonTipText = "Score over 20";
-						// should be one second - but not working so great.
-						sysTrayIcon->ShowBalloonTip(1000);
-					}
-					else if (best_score > 40)
-					{
-						sysTrayIcon->BalloonTipText = "Score over 40";
-						sysTrayIcon->ShowBalloonTip(1000);
-					}
-					else if (best_score > 60)
-					{
-						sysTrayIcon->BalloonTipText = "Score over 60";
-						sysTrayIcon->ShowBalloonTip(1000);
-					}
-					else if (best_score > 80)
-					{
-						sysTrayIcon->BalloonTipText = "Score over 80";
-						sysTrayIcon->ShowBalloonTip(1000);
-					}
-
 					scoreBox->Invalidate();
 
 					myKey = gcnew System::String(best_key.c_str());
@@ -1370,13 +1324,5 @@ private: System::Void printButton_Click(System::Object^  sender, System::EventAr
 	MessageBox::Show("Data successfully printed.\n\nResults are stored in print.txt\nfile in program directory.\n\nNote: Data in print.txt will be\nerased next time the program\nruns.", "File Printed",
 		MessageBoxButtons::OK, MessageBoxIcon::Information);
 }
-private: System::Void minimizeToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e)
-		 {
-			 if(sysTrayIcon->Visible==false)
-			 {
-				sysTrayIcon->Visible=true; 
-			 }
-			 this->Hide();
-		 }
 };
 }
