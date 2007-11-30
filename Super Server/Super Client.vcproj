@@ -136,6 +136,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="ws2_32.lib mswsock.lib advapi32.lib"
 				OutputFile="$(OutDir)/Super Client.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
