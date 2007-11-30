@@ -1,19 +1,27 @@
-#include "Server.h"
+/*#include "Server.h"
 
 int main()
 {
 	unsigned long j = 0;
 	ifstream fin;
-	fin.open("numkeys.txt", ios::in);
+	fin.open("numkeysvoted.txt", ios::in);
 	fin >> j;
 	fin.close();
+	time_t seconds;
 	while(true){
-		if(serve("keys.txt", "10000", j))
-			printf("I'm a naughty, naughty boy");	
+		if(serve("goodkeys.txt", "10002", j))
+			printf("I'm a naughty, naughty boy");
+		else
+		{
+			seconds = time(NULL);
+			FILE* cfile  = fopen("times.txt","a");
+			fprintf(cfile, "%ld\n", seconds);
+			fclose(cfile);
+		}
 	}
 	return 0;
-}
-/*#include "Server.h"
+}*/
+#include "Server.h"
 
 
 int main(){
@@ -36,4 +44,4 @@ int main(){
 
 	}
 	return 0;
-}*/
+}
