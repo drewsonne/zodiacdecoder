@@ -24,6 +24,31 @@ go to zero.
 Problem3: Uncertainty about how to properly implement the last line in the algorithm:
 "Normalize c(f|e) table to create a revised s(f|e)"
 
+Knight comments:
+
+> Problem1: At the bottom of p.2. in "Decoding Complexity..." it reads
+> "once the s(f|e) table
+> has been learned, there is a similar O(mv^2) algorithm for optimal
+> decoding. Not sure the best way to extract the
+> letter from each symbol
+this is also known as the viterbi algorithm
+> Problem2: The Q and R tables converge to zero in the second EM
+> iteration from the multiplications
+> in the inner-most for loops in the forward and reverse pass. Setting
+> the kInitSTStartValue in EMConsts to 1.0 preserves values through
+> the first EM iteration only. Setting kInitSTStartValue to 1/26 as in
+> the paper makes the values in the Q and R tables
+> go to zero.
+not sure why tables go to zero -- there should always be some (low)
+fractional count for <cipher-letter, plaintext-Q> or <cipher-Q,
+plaintext-letter>.
+> Problem3: Uncertainty about how to properly implement the last line in
+> the algorithm:
+> "Normalize c(f|e) table to create a revised s(f|e)"
+for each ei,
+total = sum over all fj of c(fj | ei)
+s(fj | ei) = c(fj | ei) / total
+
 */
 
 
