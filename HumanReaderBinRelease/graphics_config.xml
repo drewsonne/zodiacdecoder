@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<AssetPath>./assets</AssetPath>
+<TexturePath>textures</TexturePath>
+<StockTexturePath>stock</StockTexturePath>
+<ShaderPath>shaders</ShaderPath>
+<Textures>
+		<Texture name="alphabet/alpha.0.png"/>
+		<Texture name="alphabet/alpha.1.png"/>
+		<Texture name="alphabet/alpha.2.png"/>
+		<Texture name="alphabet/alpha.3.png"/>
+		<Texture name="alphabet/alpha.4.png"/>
+		<Texture name="alphabet/alpha.5.png"/>
+		<Texture name="alphabet/alpha.6.png"/>
+		<Texture name="alphabet/alpha.7.png"/>
+		<Texture name="alphabet/alpha.8.png"/>		
+		<Texture name="alphabet/alpha.9.png"/>
+		<Texture name="alphabet/alpha.10.png"/>
+		<Texture name="alphabet/alpha.11.png"/>
+		<Texture name="alphabet/alpha.12.png"/>
+		<Texture name="alphabet/alpha.13.png"/>
+		<Texture name="alphabet/alpha.14.png"/>
+		<Texture name="alphabet/alpha.15.png"/>
+		<Texture name="alphabet/alpha.16.png"/>
+		<Texture name="alphabet/alpha.17.png"/>
+		<Texture name="alphabet/alpha.18.png"/>
+		<Texture name="alphabet/alpha.19.png"/>
+		<Texture name="alphabet/alpha.20.png"/>
+		<Texture name="alphabet/alpha.21.png"/>
+		<Texture name="alphabet/alpha.22.png"/>
+		<Texture name="alphabet/alpha.23.png"/>
+		<Texture name="alphabet/alpha.24.png"/>
+		<Texture name="alphabet/alpha.25.png"/>
+		<Texture name="alphabet/alpha.26.png"/>
+		<Texture name="alphabet/alpha.27.png"/>
+		<Texture name="alphabet/alpha.28.png"/>
+		<Texture name="alphabet/alpha.29.png"/>
+		<Texture name="alphabet/alpha.30.png"/>
+		<Texture name="alphabet/alpha.31.png"/>
+		<Texture name="alphabet/alpha.32.png"/>
+		<Texture name="alphabet/alpha.33.png"/>
+		<Texture name="alphabet/alpha.34.png"/>
+		<Texture name="alphabet/alpha.35.png"/>
+		
+		<Texture name="cipher/cipher.0.png"/>
+		<Texture name="cipher/cipher.1.png"/>
+		<Texture name="cipher/cipher.2.png"/>
+		<Texture name="cipher/cipher.3.png"/>
+		<Texture name="cipher/cipher.4.png"/>
+		<Texture name="cipher/cipher.5.png"/>
+		<Texture name="cipher/cipher.6.png"/>
+		<Texture name="cipher/cipher.7.png"/>
+		<Texture name="cipher/cipher.8.png"/>
+		<Texture name="cipher/cipher.9.png"/>
+		<Texture name="cipher/cipher.10.png"/>
+		<Texture name="cipher/cipher.11.png"/>
+		<Texture name="cipher/cipher.12.png"/>
+		<Texture name="cipher/cipher.13.png"/>
+		<Texture name="cipher/cipher.14.png"/>
+		<Texture name="cipher/cipher.15.png"/>
+		<Texture name="cipher/cipher.16.png"/>
+		<Texture name="cipher/cipher.17.png"/>
+		<Texture name="cipher/cipher.18.png"/>
+		<Texture name="cipher/cipher.19.png"/>
+		<Texture name="cipher/cipher.20.png"/>
+		<Texture name="cipher/cipher.21.png"/>
+		<Texture name="cipher/cipher.22.png"/>
+		<Texture name="cipher/cipher.23.png"/>
+		<Texture name="cipher/cipher.24.png"/>
+		<Texture name="cipher/cipher.25.png"/>
+		<Texture name="cipher/cipher.26.png"/>
+		<Texture name="cipher/cipher.27.png"/>
+		<Texture name="cipher/cipher.28.png"/>
+		<Texture name="cipher/cipher.29.png"/>
+		<Texture name="cipher/cipher.30.png"/>
+		<Texture name="cipher/cipher.31.png"/>
+		<Texture name="cipher/cipher.32.png"/>
+		<Texture name="cipher/cipher.33.png"/>
+		<Texture name="cipher/cipher.34.png"/>
+		<Texture name="cipher/cipher.35.png"/>
+		<Texture name="cipher/cipher.36.png"/>
+		<Texture name="cipher/cipher.37.png"/>
+		<Texture name="cipher/cipher.38.png"/>
+		<Texture name="cipher/cipher.39.png"/>
+		<Texture name="cipher/cipher.40.png"/>
+		<Texture name="cipher/cipher.41.png"/>
+		<Texture name="cipher/cipher.42.png"/>
+		<Texture name="cipher/cipher.43.png"/>
+		<Texture name="cipher/cipher.44.png"/>
+		<Texture name="cipher/cipher.45.png"/>
+		<Texture name="cipher/cipher.46.png"/>
+		<Texture name="cipher/cipher.47.png"/>
+		<Texture name="cipher/cipher.48.png"/>
+		<Texture name="cipher/cipher.49.png"/>
+		<Texture name="cipher/cipher.50.png"/>
+		<Texture name="cipher/cipher.51.png"/>
+		<Texture name="cipher/cipher.52.png"/>
+		<Texture name="cipher/cipher.53.png"/>
+		<Texture name="cipher/cipher.54.png"/>
+		<Texture name="cipher/cipher.55.png"/>
+		<Texture name="cipher/cipher.56.png"/>
+		<Texture name="cipher/cipher.57.png"/>
+		<Texture name="cipher/cipher.58.png"/>
+		<Texture name="cipher/cipher.59.png"/>
+		<Texture name="cipher/cipher.60.png"/>
+		<Texture name="cipher/cipher.61.png"/>
+		<Texture name="cipher/cipher.62.png"/>
+
+		<Texture name="border/border.0.png"/>
+		<Texture name="border/border.1.png"/>
+		<Texture name="border/border.2.png"/>
+		<Texture name="border/border.3.png"/>
+		<Texture name="border/border.4.png"/>
+		<Texture name="border/border.5.png"/>
+		<Texture name="border/border.6.png"/>
+		<Texture name="border/border.7.png"/>
+
+		<Texture name="stock/Logo.png"/>
+		<Texture name="stock/white.png"/>
+		<Texture name="stock/black.png"/>
+		
+		<Texture name="buttons/button.png"/>
+		<Texture name="buttons/buttonDownArrow.png"/>
+		<Texture name="buttons/buttonUpArrow.png"/>	
+</Textures>
