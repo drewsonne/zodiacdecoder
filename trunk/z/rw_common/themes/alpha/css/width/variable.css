@@ -1,0 +1,17 @@
+#container,
+.photo-navigation { 
+	width: auto;
+}
+
+#pageHeader #grad {
+	width: 101%;
+}
+
+#pageHeader .wrap {
+	margin: 0 20px;
+}
+
+#container {
+	margin-right: 20px;
+	margin-left: 20px;
+}

@@ -1,0 +1,16 @@
+/* default float side for sidebar */
+#sidebarContainer {
+	float: right;
+}
+
+#contentContainer {
+	margin-right: 200px;
+}
+
+#contentContainer #content {
+	padding-right: 30px;
+}
+
+#sidebarContainer #sidebar {
+	margin-right: 15px;
+}
