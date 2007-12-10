@@ -1,0 +1,21 @@
+Well one of the first things we wanted to do is find the frequencies of
+the symbols and letters in the 340 cipher to see if maybe there was a
+pattern to be found.  In order to help us find a pattern we decided to
+try to use something that has already been solved which was his 408
+cipher.  First we gave every symbol it’s on number to make it easier to
+read.  This will also help when we plug it in to our program to find
+the frequencies.  Next thing we did was another frequency test to see
+if there was anything to be found. Since they figured out that it was a
+substitution cipher we were hoping there would be some similarities
+between the two ciphers.  One pattern I did find was there was a
+certain pattern consistency with in his cipher.  There would be about 5
+to 7 symbols that would have the same letter and would repeat its
+pattern over and over.  For instance, it could go something like this:
+B H T Y /. After it hit the slash it would start over B H T Y/, and
+continue this pattern with all the other symbols in the cipher.
+Unfortunately this did not work for the 340 cipher. Another direction
+we took was to make a vocabulary made up of all his letters and
+ciphers.  We made a program to find his most frequent words used in his
+previous writings.  This along with some of the most frequent words
+used in the english language were going to be our vocabulary to finding
+out what he could possibly be saying in the 340 cipher.
