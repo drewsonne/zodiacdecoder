@@ -1,12 +1,262 @@
-0: oho
+0: law
 1
-1: rim
+1: hart
 2
-2: hex
+2: art
 3
-3: pox
+3: sofa
 4
-4: fop
+4: ling
 5
-5: lob
+5: lingo
 6
+6: eta
+7
+7: tat
+8
+8: tile
+9
+9: tiler
+10
+10: baa
+11
+11: baas
+12
+12: can
+13
+13: cane
+14
+14: nee
+15
+15: sot
+16
+16: other
+17
+17: the
+18
+18: there
+19
+19: theres
+20
+20: her
+21
+21: here
+22
+22: heres
+23
+23: ere
+24
+24: res
+25
+25: take
+26
+26: raw
+27
+27: awn
+28
+28: moo
+29
+29: also
+30
+30: sol
+31
+31: soli
+32
+32: lit
+33
+33: lite
+34
+34: tee
+35
+35: teem
+36
+36: stir
+37
+37: the
+38
+38: her
+39
+39: err
+40
+40: sos
+41
+41: sin
+42
+42: sine
+43
+43: fir
+44
+44: fire
+45
+45: fires
+46
+46: ire
+47
+47: ires
+48
+48: res
+49
+49: tot
+50
+50: other
+51
+51: the
+52
+52: there
+53
+53: her
+54
+54: here
+55
+55: ere
+56
+56: sat
+57
+57: satin
+58
+58: tin
+59
+59: tint
+60
+60: the
+61
+61: her
+62
+62: hers
+63
+63: stat
+64
+64: tat
+65
+65: not
+66
+66: note
+67
+67: ten
+68
+68: tend
+69
+69: end
+70
+70: tech
+71
+71: echo
+72
+72: tar
+73
+73: tart
+74
+74: art
+75
+75: the
+76
+76: then
+77
+77: thens
+78
+78: hen
+79
+79: hens
+80
+80: ens
+81
+81: tar
+82
+82: arc
+83
+83: tat
+84
+84: run
+85
+85: fro
+86
+86: rot
+87
+87: rots
+88
+88: tram
+89
+89: tramp
+90
+90: ram
+91
+91: ramp
+92
+92: amp
+93
+93: tat
+94
+94: toe
+95
+95: hie
+96
+96: are
+97
+97: ohm
+98
+98: snit
+99
+99: nit
+100
+100: nite
+101
+101: niter
+102
+102: era
+103
+103: cot
+104
+104: cote
+105
+105: tea
+106
+106: wit
+107
+107: with
+108
+108: withe
+109
+109: wither
+110
+110: the
+111
+111: there
+112
+112: her
+113
+113: here
+114
+114: ere
+115
+115: lea
+116
+116: aha
+117
+117: its
+118
+118: set
+119
+119: moo
+120
+120: oil
+121
+121: hog
+122
+122: bra
+123
+123: bran
+124
+124: ran
+125
+125: nut
+126
+126: the
+127
+127: there
+128
+128: her
+129
+129: here
+130
+130: ere
+131
